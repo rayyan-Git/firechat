@@ -677,45 +677,6 @@
             box-shadow: 0 4px 15px rgba(67, 97, 238, 0.2);
         }
         
-        /* Message options menu */
-        .message-options-menu {
-            position: absolute;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px 0;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            display: none;
-        }
-        
-        .message-options-menu.show {
-            display: block;
-        }
-        
-        .message-option {
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-        
-        .message-option:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        .message-option i {
-            width: 16px;
-            text-align: center;
-        }
-        
-        .message-option.delete {
-            color: var(--danger);
-        }
-        
         /* Edit message modal */
         .edit-message-modal {
             display: none;
@@ -870,12 +831,52 @@
             right: 10%;
             background: radial-gradient(circle, rgba(114, 9, 183, 0.15) 0%, transparent 70%);
         }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification i {
+            font-size: 1.5rem;
+        }
+        
+        .notification.success i {
+            color: var(--success);
+        }
+        
+        .notification.error i {
+            color: var(--danger);
+        }
     </style>
 </head>
 <body>
     <!-- Decorative background elements -->
     <div class="bg-blur-circle circle-1"></div>
     <div class="bg-blur-circle circle-2"></div>
+    
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-info-circle"></i>
+        <div class="notification-content"></div>
+    </div>
     
     <!-- Login Modal -->
     <div class="modal" id="loginModal">
@@ -1038,15 +1039,15 @@
 
     <script>
         // Firebase configuration - REPLACE WITH YOUR ACTUAL CONFIG
-      const firebaseConfig = {
-  apiKey: "AIzaSyDAVJii9CUPUlUV8k0EpruSxri3LkPAjf0",
-  authDomain: "firechat-demo-5b5fb.firebaseapp.com",
-  databaseURL: "https://firechat-demo-5b5fb-default-rtdb.firebaseio.com",
-  projectId: "firechat-demo-5b5fb",
-  storageBucket: "firechat-demo-5b5fb.firebasestorage.app",
-  messagingSenderId: "143043689653",
-  appId: "1:143043689653:web:6a2bcb43cb914a65e192fc"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyA4b7eL8P1r8Z0Zf8g8Xq3bVjW3d1eF5s0",
+            authDomain: "firechat-testing-12345.firebaseapp.com",
+            databaseURL: "https://firechat-testing-12345-default-rtdb.firebaseio.com",
+            projectId: "firechat-testing-12345",
+            storageBucket: "firechat-testing-12345.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abc123def4567890abcdef"
+        };
         
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -1075,11 +1076,29 @@
         const closeEditModal = document.getElementById('closeEditModal');
         const cancelEditBtn = document.getElementById('cancelEditBtn');
         const saveEditBtn = document.getElementById('saveEditBtn');
+        const notification = document.getElementById('notification');
         
         // Current user data
         let currentUser = null;
         let currentMessageKey = null;
         let currentMessageElement = null;
+
+        // Show notification
+        function showNotification(message, isSuccess = true) {
+            const notificationContent = notification.querySelector('.notification-content');
+            const icon = notification.querySelector('i');
+            
+            notificationContent.textContent = message;
+            notification.className = 'notification';
+            notification.classList.add(isSuccess ? 'success' : 'error');
+            notification.classList.add('show');
+            
+            icon.className = isSuccess ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
 
         // Show login modal initially
         loginModal.style.display = 'flex';
@@ -1096,6 +1115,7 @@
             auth.signInWithPopup(provider)
                 .catch(error => {
                     loginError.textContent = `Login failed: ${error.message}`;
+                    showNotification(`Google login failed: ${error.message}`, false);
                 });
         });
         
@@ -1124,9 +1144,11 @@
                     // Save to localStorage
                     localStorage.setItem('firechat_user', JSON.stringify(currentUser));
                     startApp();
+                    showNotification('Signed in as guest successfully!');
                 })
                 .catch((error) => {
                     loginError.textContent = `Guest login failed: ${error.message}`;
+                    showNotification(`Guest login failed: ${error.message}`, false);
                 });
         });
 
@@ -1137,6 +1159,7 @@
             loginModal.style.display = 'flex';
             appContainer.style.display = 'none';
             currentUser = null;
+            showNotification('Signed out successfully');
         });
         
         // Close edit message modal
@@ -1164,13 +1187,16 @@
                         
                         // Add edited indicator
                         const timeEl = currentMessageElement.querySelector('.time');
-                        timeEl.innerHTML = `${timeEl.textContent} <span class="edited-badge">(edited)</span>`;
+                        if (!timeEl.querySelector('.edited-badge')) {
+                            timeEl.innerHTML += ' <span class="edited-badge">(edited)</span>';
+                        }
                     }
                     editMessageModal.style.display = 'none';
+                    showNotification('Message updated successfully');
                 })
                 .catch(error => {
                     console.error('Error updating message:', error);
-                    alert('Failed to update message. Please try again.');
+                    showNotification('Failed to update message. Please try again.', false);
                 });
             }
         });
@@ -1189,6 +1215,7 @@
                 // Save to localStorage
                 localStorage.setItem('firechat_user', JSON.stringify(currentUser));
                 startApp();
+                showNotification('Signed in successfully');
             } else {
                 // User signed out, show login modal
                 loginModal.style.display = 'flex';
@@ -1251,8 +1278,8 @@
                     
                     // Add edited indicator
                     const timeEl = messageEl.querySelector('.time');
-                    if (message.edited) {
-                        timeEl.innerHTML = `${timeEl.textContent} <span class="edited-badge">(edited)</span>`;
+                    if (message.edited && !timeEl.querySelector('.edited-badge')) {
+                        timeEl.innerHTML += ' <span class="edited-badge">(edited)</span>';
                     }
                 }
             });
@@ -1262,6 +1289,7 @@
                 const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
                 if (messageEl) {
                     messageEl.remove();
+                    showNotification('Message deleted successfully');
                 }
             });
             
@@ -1288,22 +1316,14 @@
                 
                 // Push to database
                 database.ref('messages').push(message)
+                    .then(() => {
+                        // Clear input
+                        messageInput.value = '';
+                    })
                     .catch(error => {
                         console.error('Error sending message:', error);
-                        // Show error to user
-                        const errorMsg = document.createElement('div');
-                        errorMsg.classList.add('message', 'received');
-                        errorMsg.innerHTML = `
-                            <div class="sender">System Bot</div>
-                            <div class="content">Failed to send message: ${error.message}</div>
-                            <div class="time">Just now</div>
-                        `;
-                        chatMessages.appendChild(errorMsg);
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                        showNotification(`Failed to send message: ${error.message}`, false);
                     });
-                
-                // Clear input
-                messageInput.value = '';
             }
         }
         
@@ -1383,7 +1403,7 @@
                 database.ref('messages/' + key).remove()
                     .catch(error => {
                         console.error('Error deleting message:', error);
-                        alert('Failed to delete message. Please try again.');
+                        showNotification('Failed to delete message. Please try again.', false);
                     });
             }
         }
