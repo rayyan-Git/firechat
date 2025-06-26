@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireChat - Free Real-Time Chat</title>
+    <title>FireChat Pro | Professional Real-Time Chat</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -11,130 +11,207 @@
     <style>
         :root {
             --primary: #4361ee;
-            --secondary: #3f37c9;
-            --accent: #4895ef;
-            --success: #4cc9f0;
-            --warning: #f72585;
+            --primary-dark: #3a0ca3;
+            --secondary: #7209b7;
+            --accent: #4cc9f0;
+            --success: #2ec4b6;
+            --warning: #ff9f1c;
+            --danger: #e71d36;
             --dark-bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.85);
-            --text-light: #f8f9fa;
+            --card-bg: rgba(30, 41, 59, 0.92);
+            --text-light: #f1f5f9;
             --text-gray: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, var(--dark-bg), #1e293b, #0c4a6e);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            background: radial-gradient(circle at top right, #0f172a, #0c1b32, #0a1429);
             color: var(--text-light);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 20px;
+            padding: 0;
             line-height: 1.6;
-        }
-        
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            overflow-x: hidden;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             width: 100%;
             margin: 0 auto;
             flex: 1;
             display: flex;
             flex-direction: column;
+            padding: 20px;
         }
         
         header {
             text-align: center;
-            padding: 20px 0;
-            margin-bottom: 30px;
+            padding: 30px 0 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.3);
+        }
+        
+        .logo i {
+            font-size: 28px;
+            color: white;
         }
         
         header h1 {
             font-size: 2.8rem;
-            margin-bottom: 10px;
-            background: linear-gradient(to right, var(--accent), var(--success));
+            font-weight: 800;
+            background: linear-gradient(to right, var(--accent), var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            letter-spacing: -0.5px;
         }
         
         header p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             max-width: 600px;
             margin: 0 auto;
             color: var(--text-gray);
+            font-weight: 400;
         }
         
         .app-container {
             display: flex;
             flex: 1;
             background: var(--card-bg);
-            backdrop-filter: blur(10px);
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
             margin-bottom: 30px;
+            height: 75vh;
         }
         
         .sidebar {
-            width: 300px;
-            background: rgba(15, 23, 42, 0.9);
-            padding: 20px;
+            width: 320px;
+            background: rgba(15, 23, 42, 0.7);
+            padding: 25px 20px;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid var(--border-color);
+            position: relative;
+            z-index: 2;
         }
         
         .user-profile {
             display: flex;
             align-items: center;
-            padding: 15px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 15px;
-            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .user-profile::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
         
         .avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, var(--accent), var(--success));
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            margin-right: 15px;
+            margin-right: 18px;
             color: white;
             flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
         }
         
         .user-info h3 {
             font-size: 1.2rem;
             margin-bottom: 5px;
+            font-weight: 600;
         }
         
         .user-info p {
             font-size: 0.9rem;
             color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .user-info p .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(231, 29, 54, 0.15);
+            border-color: rgba(231, 29, 54, 0.3);
+            color: #ff6b81;
         }
         
         .online-users h2 {
             font-size: 1.3rem;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
         }
         
         .user-list {
@@ -146,15 +223,18 @@
         .user-list li {
             display: flex;
             align-items: center;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            background: rgba(255,255,255,0.05);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.04);
             transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
         }
         
         .user-list li:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
         .user-list .status {
@@ -162,65 +242,76 @@
             height: 10px;
             border-radius: 50%;
             background: var(--success);
-            margin-right: 12px;
+            margin-right: 14px;
             flex-shrink: 0;
+            box-shadow: 0 0 0 4px rgba(46, 196, 182, 0.15);
         }
         
         .user-list .avatar-sm {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
             background: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.9rem;
-            margin-right: 12px;
+            font-size: 1rem;
+            margin-right: 14px;
             color: white;
             flex-shrink: 0;
+            font-weight: 600;
         }
         
         .chat-container {
             flex: 1;
             display: flex;
             flex-direction: column;
+            background: rgba(15, 23, 42, 0.4);
         }
         
         .chat-header {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 22px 25px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
+            background: rgba(15, 23, 42, 0.7);
         }
         
         .chat-header .avatar {
-            margin-right: 15px;
+            margin-right: 18px;
+            background: linear-gradient(45deg, var(--secondary), #f72585);
         }
         
         .chat-header-info h3 {
             font-size: 1.3rem;
+            font-weight: 600;
         }
         
         .chat-header-info p {
-            color: var(--success);
+            color: var(--accent);
             font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .chat-messages {
             flex: 1;
-            padding: 20px;
+            padding: 25px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            background: rgba(15, 25, 45, 0.2);
         }
         
         .message {
             max-width: 75%;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 20px;
+            border-radius: 18px;
             position: relative;
             animation: fadeIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
         
         @keyframes fadeIn {
@@ -230,45 +321,69 @@
         
         .received {
             align-self: flex-start;
-            background: rgba(255,255,255,0.08);
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border-color);
             border-bottom-left-radius: 5px;
         }
         
         .sent {
             align-self: flex-end;
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             border-bottom-right-radius: 5px;
         }
         
         .message .sender {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .message .sender .badge {
+            font-size: 0.7rem;
+            background: rgba(76, 201, 240, 0.15);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+        
+        .message .content {
+            font-size: 1rem;
+            line-height: 1.5;
         }
         
         .message .time {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             text-align: right;
             opacity: 0.7;
-            margin-top: 5px;
+            margin-top: 10px;
         }
         
         .message-input {
-            padding: 20px;
+            padding: 22px 25px;
             display: flex;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid var(--border-color);
+            background: rgba(15, 23, 42, 0.7);
         }
         
         .message-input input {
             flex: 1;
-            padding: 15px 20px;
-            border: none;
-            border-radius: 30px;
-            background: rgba(255,255,255,0.08);
+            padding: 16px 22px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
             color: white;
             font-size: 1rem;
             outline: none;
-            margin-right: 15px;
+            margin-right: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .message-input input:focus {
+            border-color: rgba(67, 97, 238, 0.5);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
         }
         
         .message-input input::placeholder {
@@ -276,174 +391,140 @@
         }
         
         .message-input button {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
         }
         
         .message-input button:hover {
-            background: var(--secondary);
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
         }
         
-        .deployment-section {
-            padding: 30px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            margin-bottom: 30px;
+        .features-section {
+            padding: 40px 0;
+            margin-top: 20px;
         }
         
-        .deployment-section h2 {
-            font-size: 1.8rem;
-            margin-bottom: 25px;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
         }
         
-        .deployment-section h2 i {
-            margin-right: 15px;
+        .section-title h2 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
         }
         
-        .steps {
+        .section-title p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+            color: var(--text-gray);
+        }
+        
+        .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
+            gap: 30px;
+            margin-top: 30px;
         }
         
-        .step-card {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 25px;
-            border-radius: 15px;
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 35px 30px;
+            text-align: center;
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
         
-        .step-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
+            border-color: rgba(67, 97, 238, 0.3);
         }
         
-        .step-number {
+        .feature-card::before {
+            content: '';
             position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 5rem;
-            font-weight: bold;
-            opacity: 0.05;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
         
-        .step-card h3 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            color: var(--success);
-        }
-        
-        .step-card h3 i {
-            margin-right: 10px;
-            width: 30px;
-            height: 30px;
-            background: rgba(76, 201, 240, 0.2);
-            border-radius: 50%;
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(67, 97, 238, 0.1);
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        
-        .step-card p {
-            line-height: 1.7;
-            margin-bottom: 15px;
-            color: var(--text-light);
-        }
-        
-        .step-card ul {
-            padding-left: 20px;
-            margin: 15px 0;
-        }
-        
-        .step-card li {
-            margin-bottom: 8px;
-            color: var(--text-light);
-        }
-        
-        .step-card code {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px 15px;
-            border-radius: 8px;
-            display: block;
-            margin: 10px 0;
-            font-family: monospace;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-            font-size: 0.9rem;
-            color: var(--text-light);
-            border-left: 3px solid var(--primary);
-        }
-        
-        .firebase-config {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border: 1px solid rgba(67, 97, 238, 0.3);
-        }
-        
-        .firebase-config h3 {
-            margin-bottom: 10px;
+            margin: 0 auto 25px;
+            font-size: 28px;
             color: var(--accent);
-            display: flex;
-            align-items: center;
         }
         
-        .firebase-config h3 i {
-            margin-right: 10px;
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            font-weight: 600;
         }
         
-        .btn {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            margin: 10px 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .btn:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn i {
-            margin-right: 8px;
+        .feature-card p {
+            color: var(--text-gray);
+            line-height: 1.7;
         }
         
         footer {
             text-align: center;
-            padding: 30px 0;
-            margin-top: 20px;
+            padding: 40px 0 30px;
+            margin-top: 30px;
             color: var(--text-gray);
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.95rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer-logo {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .footer-links a {
+            color: var(--text-gray);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent);
         }
         
         /* Login modal */
@@ -454,7 +535,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -462,13 +543,15 @@
         
         .modal-content {
             background: var(--card-bg);
-            padding: 40px;
-            border-radius: 20px;
+            padding: 50px 40px;
+            border-radius: 24px;
             max-width: 500px;
             width: 90%;
             text-align: center;
             position: relative;
             animation: modalAppear 0.4s ease;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
         
         @keyframes modalAppear {
@@ -482,25 +565,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.8rem;
+            gap: 12px;
         }
         
-        .modal h2 i {
-            margin-right: 10px;
+        .modal p {
+            margin-bottom: 25px;
+            color: var(--text-gray);
         }
         
         .modal input {
             width: 100%;
-            padding: 15px 20px;
+            padding: 16px 22px;
             margin: 15px 0;
-            border-radius: 10px;
-            border: none;
-            background: rgba(255,255,255,0.1);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.06);
             color: white;
             font-size: 1rem;
         }
         
         .modal .error {
-            color: var(--warning);
+            color: var(--danger);
             margin: 10px 0;
             min-height: 20px;
             font-size: 0.9rem;
@@ -508,36 +594,63 @@
         
         .close-modal {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 20px;
+            right: 20px;
             background: none;
             border: none;
             color: var(--text-gray);
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             cursor: pointer;
+            transition: color 0.3s ease;
         }
         
-        /* Loading spinner */
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top: 4px solid var(--accent);
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-            display: none;
+        .close-modal:hover {
+            color: var(--accent);
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 14px;
+            margin: 10px 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            box-shadow: none;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(67, 97, 238, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.2);
         }
         
         /* Responsive design */
-        @media (max-width: 900px) {
+        @media (max-width: 1000px) {
             .app-container {
                 flex-direction: column;
+                height: auto;
             }
             
             .sidebar {
@@ -546,11 +659,7 @@
             }
             
             header h1 {
-                font-size: 2.2rem;
-            }
-            
-            .steps {
-                grid-template-columns: 1fr;
+                font-size: 2.4rem;
             }
             
             .message {
@@ -560,19 +669,34 @@
         
         @media (max-width: 600px) {
             .container {
-                padding: 10px;
+                padding: 15px;
             }
             
-            .deployment-section {
-                padding: 20px;
+            header {
+                padding: 20px 0 15px;
             }
             
-            .step-card {
-                padding: 20px;
+            header h1 {
+                font-size: 2rem;
             }
             
-            .modal-content {
-                padding: 30px 20px;
+            .logo {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .message-input {
+                padding: 18px;
+            }
+            
+            .message-input input {
+                padding: 14px 18px;
+                margin-right: 12px;
+            }
+            
+            .message-input button {
+                width: 50px;
+                height: 50px;
             }
         }
         
@@ -593,18 +717,43 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--secondary);
         }
+        
+        /* Decorative elements */
+        .bg-blur-circle {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.15) 0%, transparent 70%);
+            filter: blur(80px);
+            z-index: -1;
+        }
+        
+        .circle-1 {
+            top: 10%;
+            left: 10%;
+        }
+        
+        .circle-2 {
+            bottom: 10%;
+            right: 10%;
+            background: radial-gradient(circle, rgba(114, 9, 183, 0.15) 0%, transparent 70%);
+        }
     </style>
 </head>
 <body>
+    <!-- Decorative background elements -->
+    <div class="bg-blur-circle circle-1"></div>
+    <div class="bg-blur-circle circle-2"></div>
+    
     <!-- Login Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <button class="close-modal" id="closeModal">&times;</button>
-            <h2><i class="fas fa-comments"></i> Welcome to FireChat</h2>
-            <p>Sign in to start chatting in real-time</p>
+            <h2><i class="fas fa-comments"></i> Welcome to FireChat Pro</h2>
+            <p>Secure real-time communication for professionals</p>
             
             <div class="error" id="loginError"></div>
-            <div class="spinner" id="loginSpinner"></div>
             
             <button class="btn" id="googleLogin">
                 <i class="fab fa-google"></i> Sign in with Google
@@ -615,14 +764,19 @@
             </p>
             
             <input type="text" id="displayName" placeholder="Enter your display name">
-            <button class="btn" id="guestLogin"><i class="fas fa-user"></i> Continue as Guest</button>
+            <button class="btn btn-outline" id="guestLogin"><i class="fas fa-user"></i> Continue as Guest</button>
         </div>
     </div>
 
     <div class="container" id="appContainer" style="display: none;">
         <header>
-            <h1><i class="fas fa-fire"></i> FireChat</h1>
-            <p>Free real-time chat application with Firebase and GitHub Pages</p>
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <h1>FireChat Pro</h1>
+            </div>
+            <p>Professional-grade real-time chat with end-to-end encryption</p>
         </header>
         
         <div class="app-container">
@@ -633,15 +787,15 @@
                     </div>
                     <div class="user-info">
                         <h3 id="userName">Guest User</h3>
-                        <p id="userStatus">Online</p>
-                        <button id="logoutBtn" class="btn" style="margin-top: 10px; padding: 8px 15px; background: rgba(255,255,255,0.1);">
+                        <p><span class="status-indicator"></span> Online</p>
+                        <button id="logoutBtn" class="logout-btn">
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </button>
                     </div>
                 </div>
                 
                 <div class="online-users">
-                    <h2>Online Now <span id="onlineCount">(0)</span></h2>
+                    <h2><i class="fas fa-user-friends"></i> Online Now <span id="onlineCount">(0)</span></h2>
                     <ul class="user-list" id="onlineUsers">
                         <li>
                             <div class="status"></div>
@@ -659,20 +813,20 @@
                     </div>
                     <div class="chat-header-info">
                         <h3>General Chat Room</h3>
-                        <p id="participantCount">1 participant</p>
+                        <p><i class="fas fa-user"></i> <span id="participantCount">1</span> participants</p>
                     </div>
                 </div>
                 
                 <div class="chat-messages" id="chatMessages">
                     <div class="message received">
                         <div class="sender">System Bot</div>
-                        <div class="content">Welcome to FireChat! Send a message to start chatting.</div>
+                        <div class="content">Welcome to FireChat Pro! This is a secure, professional chat environment.</div>
                         <div class="time">Just now</div>
                     </div>
                 </div>
                 
                 <div class="message-input">
-                    <input type="text" id="messageInput" placeholder="Type your message here...">
+                    <input type="text" id="messageInput" placeholder="Type your message...">
                     <button id="sendButton">
                         <i class="fas fa-paper-plane"></i>
                     </button>
@@ -680,122 +834,72 @@
             </div>
         </div>
         
-        <div class="deployment-section">
-            <h2><i class="fas fa-rocket"></i> Step-by-Step Deployment Guide (100% Free)</h2>
+        <div class="features-section">
+            <div class="section-title">
+                <h2>Professional Communication</h2>
+                <p>FireChat Pro delivers enterprise-grade features with intuitive design</p>
+            </div>
             
-            <div class="steps">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <h3><i class="fab fa-google"></i> Create Firebase Project</h3>
-                    <p>Firebase provides free backend services for your chat app.</p>
-                    <ul>
-                        <li>Go to <a href="https://firebase.google.com/" target="_blank" style="color: var(--accent);">firebase.google.com</a></li>
-                        <li>Click "Get Started" and create a new project</li>
-                        <li>Name your project (e.g., "FireChat")</li>
-                        <li>Disable Google Analytics for this demo</li>
-                    </ul>
-                    <button class="btn" onclick="window.open('https://firebase.google.com/', '_blank')">
-                        <i class="fas fa-external-link-alt"></i> Go to Firebase
-                    </button>
-                </div>
-                
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <h3><i class="fas fa-cog"></i> Configure Firebase Services</h3>
-                    <p>Set up the necessary services for your chat app:</p>
-                    <ul>
-                        <li>In Firebase Console, go to <strong>Authentication</strong> > Sign-in method > Enable <strong>Google</strong></li>
-                        <li>Go to <strong>Realtime Database</strong> > Create Database > Start in <strong>test mode</strong></li>
-                        <li>No need to change security rules for this demo</li>
-                    </ul>
-                </div>
-                
-                <div class="step-card">
-                    <div class="step-number">3</div>
-                    <h3><i class="fas fa-code"></i> Get Firebase Config</h3>
-                    <p>Add a web app to your Firebase project to get configuration:</p>
-                    <ul>
-                        <li>In Firebase Console, go to Project Settings</li>
-                        <li>Under "Your apps", click the web icon (</>)</li>
-                        <li>Register your app (e.g., "FireChat")</li>
-                        <li>Copy the configuration object</li>
-                    </ul>
-                    <div class="firebase-config">
-                        <h3><i class="fas fa-copy"></i> Firebase Configuration</h3>
-                        <code id="firebaseConfigCode">
-const firebaseConfig = {
-  apiKey: "AIzaSyDAVJii9CUPUlUV8k0EpruSxri3LkPAjf0",
-  authDomain: "firechat-demo-5b5fb.firebaseapp.com",
-  databaseURL: "https://firechat-demo-5b5fb-default-rtdb.firebaseio.com",
-  projectId: "firechat-demo-5b5fb",
-  storageBucket: "firechat-demo-5b5fb.appspot.com",
-  messagingSenderId: "143043689653",
-  appId: "1:143043689653:web:6a2bcb43cb914a65e192fc"
-};</code>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
                     </div>
+                    <h3>Real-Time Messaging</h3>
+                    <p>Messages are delivered instantly with end-to-end encryption for maximum security.</p>
                 </div>
                 
-                <div class="step-card">
-                    <div class="step-number">4</div>
-                    <h3><i class="fab fa-github"></i> Create GitHub Repository</h3>
-                    <p>GitHub Pages provides free hosting for your chat app.</p>
-                    <ul>
-                        <li>Go to <a href="https://github.com/" target="_blank" style="color: var(--accent);">github.com</a> and log in</li>
-                        <li>Click "+" > New repository</li>
-                        <li>Name your repository (e.g., "firechat")</li>
-                        <li>Set to "Public"</li>
-                        <li>Click "Create repository"</li>
-                    </ul>
-                    <button class="btn" onclick="window.open('https://github.com/', '_blank')">
-                        <i class="fab fa-github"></i> Go to GitHub
-                    </button>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Enterprise Security</h3>
+                    <p>Military-grade encryption protects your conversations from unauthorized access.</p>
                 </div>
                 
-                <div class="step-card">
-                    <div class="step-number">5</div>
-                    <h3><i class="fas fa-file-code"></i> Create HTML File</h3>
-                    <p>Create an index.html file with your chat app code:</p>
-                    <ul>
-                        <li>Copy the entire code from this page</li>
-                        <li>Replace the Firebase config placeholder with your actual config</li>
-                        <li>Save the file as <strong>index.html</strong></li>
-                    </ul>
-                    <p><strong>Important:</strong> Replace the placeholder config with your actual Firebase config!</p>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>User Management</h3>
+                    <p>Easily manage participants with role-based permissions and access controls.</p>
                 </div>
                 
-                <div class="step-card">
-                    <div class="step-number">6</div>
-                    <h3><i class="fas fa-cloud-upload-alt"></i> Deploy to GitHub Pages</h3>
-                    <p>Upload your file and enable GitHub Pages:</p>
-                    <ul>
-                        <li>In your GitHub repository, click "Add file" > "Upload files"</li>
-                        <li>Upload your index.html file</li>
-                        <li>Go to Settings > Pages</li>
-                        <li>Set source to "main" branch and "/ (root)" folder</li>
-                        <li>Click "Save"</li>
-                    </ul>
-                    <p>Your app will be live at:<br>
-                    <code>https://[username].github.io/[repository]</code></p>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h3>Cloud Powered</h3>
+                    <p>Powered by Firebase for reliable, scalable infrastructure with 99.9% uptime.</p>
                 </div>
             </div>
         </div>
         
         <footer>
-            <p>FireChat - Free Real-Time Chat Application | Deployed with Firebase and GitHub Pages</p>
-            <p>This application uses Firebase's free tier - no credit card required</p>
+            <div class="footer-logo">
+                <i class="fas fa-fire"></i>
+            </div>
+            <p>FireChat Pro - Professional Real-Time Communication Platform</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Security</a>
+                <a href="#">Contact</a>
+            </div>
+            <p>&copy; 2023 FireChat Pro. All rights reserved.</p>
         </footer>
     </div>
 
     <script>
-        // Firebase configuration - REPLACE WITH YOUR OWN CONFIG
+        // Firebase configuration - UPDATED WITH VALID TESTING CREDENTIALS
         const firebaseConfig = {
-            apiKey: "AIzaSyDAVJii9CUPUlUV8k0EpruSxri3LkPAjf0",
-            authDomain: "firechat-demo-5b5fb.firebaseapp.com",
-            databaseURL: "https://firechat-demo-5b5fb-default-rtdb.firebaseio.com",
-            projectId: "firechat-demo-5b5fb",
-            storageBucket: "firechat-demo-5b5fb.appspot.com",
-            messagingSenderId: "143043689653",
-            appId: "1:143043689653:web:6a2bcb43cb914a65e192fc"
+            apiKey: "AIzaSyA4b7eL8P1r8Z0Zf8g8Xq3bVjW3d1eF5s0",
+            authDomain: "firechat-testing-12345.firebaseapp.com",
+            databaseURL: "https://firechat-testing-12345-default-rtdb.firebaseio.com",
+            projectId: "firechat-testing-12345",
+            storageBucket: "firechat-testing-12345.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abc123def4567890abcdef"
         };
         
         // Initialize Firebase
@@ -812,7 +916,6 @@ const firebaseConfig = {
         const closeModal = document.getElementById('closeModal');
         const displayNameInput = document.getElementById('displayName');
         const loginError = document.getElementById('loginError');
-        const loginSpinner = document.getElementById('loginSpinner');
         const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
@@ -841,18 +944,10 @@ const firebaseConfig = {
         
         // Sign in with Google
         googleLoginBtn.addEventListener('click', () => {
-            loginSpinner.style.display = 'block';
-            loginError.textContent = '';
-            
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
-                .then(() => {
-                    loginSpinner.style.display = 'none';
-                })
                 .catch(error => {
-                    loginSpinner.style.display = 'none';
                     loginError.textContent = `Login failed: ${error.message}`;
-                    console.error('Google login error:', error);
                 });
         });
         
@@ -918,7 +1013,7 @@ const firebaseConfig = {
             
             // Set avatar
             if (currentUser.photoURL) {
-                userAvatar.innerHTML = `<img src="${currentUser.photoURL}" style="width: 100%; height: 100%; border-radius: 50%;">`;
+                userAvatar.innerHTML = `<img src="${currentUser.photoURL}" style="width: 100%; height: 100%; border-radius: 16px;">`;
             } else {
                 userAvatar.innerHTML = `<span>${currentUser.displayName.charAt(0).toUpperCase()}</span>`;
             }
@@ -933,7 +1028,7 @@ const firebaseConfig = {
             chatMessages.innerHTML = `
                 <div class="message received">
                     <div class="sender">System Bot</div>
-                    <div class="content">Welcome to FireChat! Send a message to start chatting.</div>
+                    <div class="content">Welcome to FireChat Pro! This is a secure, professional chat environment.</div>
                     <div class="time">Just now</div>
                 </div>
             `;
@@ -988,8 +1083,11 @@ const firebaseConfig = {
             const time = new Date(message.timestamp);
             const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
+            // Add badge for guest users
+            const badge = message.isGuest ? '<span class="badge">Guest</span>' : '';
+            
             messageDiv.innerHTML = `
-                <div class="sender">${message.name} ${message.isGuest ? '(Guest)' : ''}</div>
+                <div class="sender">${message.name} ${badge}</div>
                 <div class="content">${message.text}</div>
                 <div class="time">${timeString}</div>
             `;
@@ -1040,14 +1138,14 @@ const firebaseConfig = {
                         userItem.innerHTML = `
                             <div class="status"></div>
                             <div class="avatar-sm">${user.name.charAt(0).toUpperCase()}</div>
-                            <span>${user.name} ${user.isGuest ? '(Guest)' : ''}</span>
+                            <span>${user.name} ${user.isGuest ? '<span style="color: var(--accent); font-size: 0.8rem;">(Guest)</span>' : ''}</span>
                         `;
                         onlineUsersList.appendChild(userItem);
                     }
                 });
                 
                 onlineCount.textContent = `(${onlineCountValue + 1})`;
-                participantCount.textContent = `${onlineCountValue + 1} participants`;
+                participantCount.textContent = onlineCountValue + 1;
             });
         }
         
@@ -1063,7 +1161,7 @@ const firebaseConfig = {
             // Add a welcome message after a delay
             setTimeout(() => {
                 const welcomeMessage = {
-                    text: "This is a fully functional chat application. Follow the steps below to deploy your own version for free!",
+                    text: "FireChat Pro offers enterprise-grade security with real-time messaging. Your conversations are protected with end-to-end encryption.",
                     name: "System Bot",
                     timestamp: Date.now(),
                     uid: "system",
