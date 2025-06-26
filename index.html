@@ -517,6 +517,23 @@
             cursor: pointer;
         }
         
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         /* Responsive design */
         @media (max-width: 900px) {
             .app-container {
@@ -587,6 +604,7 @@
             <p>Sign in to start chatting in real-time</p>
             
             <div class="error" id="loginError"></div>
+            <div class="spinner" id="loginSpinner"></div>
             
             <button class="btn" id="googleLogin">
                 <i class="fab fa-google"></i> Sign in with Google
@@ -769,7 +787,7 @@ const firebaseConfig = {
     </div>
 
     <script>
-        // Firebase configuration - UPDATED WITH YOUR CREDENTIALS
+        // Firebase configuration - REPLACE WITH YOUR OWN CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyDAVJii9CUPUlUV8k0EpruSxri3LkPAjf0",
             authDomain: "firechat-demo-5b5fb.firebaseapp.com",
@@ -794,6 +812,7 @@ const firebaseConfig = {
         const closeModal = document.getElementById('closeModal');
         const displayNameInput = document.getElementById('displayName');
         const loginError = document.getElementById('loginError');
+        const loginSpinner = document.getElementById('loginSpinner');
         const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
@@ -822,10 +841,18 @@ const firebaseConfig = {
         
         // Sign in with Google
         googleLoginBtn.addEventListener('click', () => {
+            loginSpinner.style.display = 'block';
+            loginError.textContent = '';
+            
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
+                .then(() => {
+                    loginSpinner.style.display = 'none';
+                })
                 .catch(error => {
+                    loginSpinner.style.display = 'none';
                     loginError.textContent = `Login failed: ${error.message}`;
+                    console.error('Google login error:', error);
                 });
         });
         
@@ -838,12 +865,16 @@ const firebaseConfig = {
                 photoURL: null,
                 isGuest: true
             };
+            
+            // Save to localStorage
+            localStorage.setItem('firechat_user', JSON.stringify(currentUser));
             startApp();
         });
         
         // Logout
         logoutBtn.addEventListener('click', () => {
             auth.signOut();
+            localStorage.removeItem('firechat_user');
             loginModal.style.display = 'flex';
             appContainer.style.display = 'none';
             currentUser = {
@@ -864,7 +895,17 @@ const firebaseConfig = {
                     photoURL: user.photoURL,
                     isGuest: false
                 };
+                
+                // Save to localStorage
+                localStorage.setItem('firechat_user', JSON.stringify(currentUser));
                 startApp();
+            } else {
+                // Check if we have a guest user in localStorage
+                const savedUser = localStorage.getItem('firechat_user');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    startApp();
+                }
             }
         });
         
@@ -888,6 +929,15 @@ const firebaseConfig = {
         }
         
         function initChat() {
+            // Clear chat messages except the system message
+            chatMessages.innerHTML = `
+                <div class="message received">
+                    <div class="sender">System Bot</div>
+                    <div class="content">Welcome to FireChat! Send a message to start chatting.</div>
+                    <div class="time">Just now</div>
+                </div>
+            `;
+            
             // Reference to the messages in database
             const messagesRef = database.ref('messages').limitToLast(50);
             
@@ -1003,6 +1053,13 @@ const firebaseConfig = {
         
         // Initialize the app
         window.onload = function() {
+            // Check for saved user
+            const savedUser = localStorage.getItem('firechat_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                startApp();
+            }
+            
             // Add a welcome message after a delay
             setTimeout(() => {
                 const welcomeMessage = {
