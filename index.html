@@ -891,7 +891,7 @@
     </div>
 
     <script>
-        // Firebase configuration - UPDATED WITH VALID TESTING CREDENTIALS
+        // Firebase configuration - REPLACE WITH YOUR ACTUAL CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyA4b7eL8P1r8Z0Zf8g8Xq3bVjW3d1eF5s0",
             authDomain: "firechat-testing-12345.firebaseapp.com",
@@ -926,13 +926,8 @@
         const userAvatar = document.getElementById('userAvatar');
         
         // Current user data
-        let currentUser = {
-            uid: null,
-            displayName: 'Guest User',
-            photoURL: null,
-            isGuest: true
-        };
-        
+        let currentUser = null;
+
         // Show login modal initially
         loginModal.style.display = 'flex';
         appContainer.style.display = 'none';
@@ -954,53 +949,61 @@
         // Sign in as guest
         guestLoginBtn.addEventListener('click', () => {
             const name = displayNameInput.value.trim() || 'Guest User';
-            currentUser = {
-                uid: `guest_${Date.now()}`,
-                displayName: name,
-                photoURL: null,
-                isGuest: true
-            };
             
-            // Save to localStorage
-            localStorage.setItem('firechat_user', JSON.stringify(currentUser));
-            startApp();
+            // Create a proper Firebase auth guest user
+            auth.signInAnonymously()
+                .then((userCredential) => {
+                    // Signed in as guest
+                    const user = userCredential.user;
+                    currentUser = {
+                        uid: user.uid,
+                        displayName: name,
+                        photoURL: null,
+                        isGuest: true
+                    };
+                    
+                    // Update profile with display name
+                    return user.updateProfile({
+                        displayName: name
+                    });
+                })
+                .then(() => {
+                    // Save to localStorage
+                    localStorage.setItem('firechat_user', JSON.stringify(currentUser));
+                    startApp();
+                })
+                .catch((error) => {
+                    loginError.textContent = `Guest login failed: ${error.message}`;
+                });
         });
-        
+
         // Logout
         logoutBtn.addEventListener('click', () => {
             auth.signOut();
             localStorage.removeItem('firechat_user');
             loginModal.style.display = 'flex';
             appContainer.style.display = 'none';
-            currentUser = {
-                uid: null,
-                displayName: 'Guest User',
-                photoURL: null,
-                isGuest: true
-            };
+            currentUser = null;
         });
         
         // Firebase Auth State Listener
         auth.onAuthStateChanged(user => {
             if (user) {
-                // User is signed in with Google
+                // User is signed in (either Google or anonymous)
                 currentUser = {
                     uid: user.uid,
-                    displayName: user.displayName,
+                    displayName: user.displayName || 'Guest User',
                     photoURL: user.photoURL,
-                    isGuest: false
+                    isGuest: user.isAnonymous
                 };
                 
                 // Save to localStorage
                 localStorage.setItem('firechat_user', JSON.stringify(currentUser));
                 startApp();
             } else {
-                // Check if we have a guest user in localStorage
-                const savedUser = localStorage.getItem('firechat_user');
-                if (savedUser) {
-                    currentUser = JSON.parse(savedUser);
-                    startApp();
-                }
+                // User signed out, show login modal
+                loginModal.style.display = 'flex';
+                appContainer.style.display = 'none';
             }
         });
         
@@ -1015,7 +1018,9 @@
             if (currentUser.photoURL) {
                 userAvatar.innerHTML = `<img src="${currentUser.photoURL}" style="width: 100%; height: 100%; border-radius: 16px;">`;
             } else {
-                userAvatar.innerHTML = `<span>${currentUser.displayName.charAt(0).toUpperCase()}</span>`;
+                // Show first initial for guests
+                const initial = currentUser.displayName.charAt(0).toUpperCase();
+                userAvatar.innerHTML = `<span style="font-size: 1.5rem; font-weight: bold;">${initial}</span>`;
             }
             
             // Initialize chat
@@ -1068,9 +1073,6 @@
                 
                 // Push to database
                 database.ref('messages').push(message)
-                    .then(() => {
-                        // Message sent successfully
-                    })
                     .catch(error => {
                         console.error('Error sending message:', error);
                         // Show error to user
@@ -1078,7 +1080,7 @@
                         errorMsg.classList.add('message', 'received');
                         errorMsg.innerHTML = `
                             <div class="sender">System Bot</div>
-                            <div class="content">Failed to send message. Please try again.</div>
+                            <div class="content">Failed to send message: ${error.message}</div>
                             <div class="time">Just now</div>
                         `;
                         chatMessages.appendChild(errorMsg);
