@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FireChat - Free Real-Time Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --dark-bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.85);
+            --text-light: #f8f9fa;
+            --text-gray: #94a3b8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark-bg), #1e293b, #0c4a6e);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            color: var(--text-gray);
+        }
+        
+        .app-container {
+            display: flex;
+            flex: 1;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            margin-bottom: 30px;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--accent), var(--success));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .user-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .user-info p {
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+        
+        .online-users h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .user-list li {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .user-list li:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .user-list .status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .user-list .avatar-sm {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            margin-right: 12px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-header .avatar {
+            margin-right: 15px;
+        }
+        
+        .chat-header-info h3 {
+            font-size: 1.3rem;
+        }
+        
+        .chat-header-info p {
+            color: var(--success);
+            font-size: 0.9rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message {
+            max-width: 75%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .received {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.08);
+            border-bottom-left-radius: 5px;
+        }
+        
+        .sent {
+            align-self: flex-end;
+            background: var(--primary);
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message .sender {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .message .time {
+            font-size: 0.7rem;
+            text-align: right;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        
+        .message-input {
+            padding: 20px;
+            display: flex;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .message-input input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            margin-right: 15px;
+        }
+        
+        .message-input input::placeholder {
+            color: var(--text-gray);
+        }
+        
+        .message-input button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .message-input button:hover {
+            background: var(--secondary);
+            transform: scale(1.05);
+        }
+        
+        .deployment-section {
+            padding: 30px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .deployment-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+        }
+        
+        .deployment-section h2 i {
+            margin-right: 15px;
+        }
+        
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .step-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 25px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 5rem;
+            font-weight: bold;
+            opacity: 0.05;
+        }
+        
+        .step-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            color: var(--success);
+        }
+        
+        .step-card h3 i {
+            margin-right: 10px;
+            width: 30px;
+            height: 30px;
+            background: rgba(76, 201, 240, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .step-card p {
+            line-height: 1.7;
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+        
+        .step-card ul {
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+        
+        .step-card li {
+            margin-bottom: 8px;
+            color: var(--text-light);
+        }
+        
+        .step-card code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: block;
+            margin: 10px 0;
+            font-family: monospace;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .firebase-config {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid rgba(67, 97, 238, 0.3);
+        }
+        
+        .firebase-config h3 {
+            margin-bottom: 10px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+        }
+        
+        .firebase-config h3 i {
+            margin-right: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin: 10px 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 20px;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* Login modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            animation: modalAppear 0.4s ease;
+        }
+        
+        @keyframes modalAppear {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal h2 {
+            margin-bottom: 20px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal h2 i {
+            margin-right: 10px;
+        }
+        
+        .modal input {
+            width: 100%;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .modal .error {
+            color: var(--warning);
+            margin: 10px 0;
+            min-height: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 900px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+            }
+            
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .steps {
+                grid-template-columns: 1fr;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .deployment-section {
+                padding: 20px;
+            }
+            
+            .step-card {
+                padding: 20px;
+            }
+            
+            .modal-content {
+                padding: 30px 20px;
+            }
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeModal">&times;</button>
+            <h2><i class="fas fa-comments"></i> Welcome to FireChat</h2>
+            <p>Sign in to start chatting in real-time</p>
+            
+            <div class="error" id="loginError"></div>
+            
+            <button class="btn" id="googleLogin">
+                <i class="fab fa-google"></i> Sign in with Google
+            </button>
+            
+            <p style="margin: 25px 0 15px; font-size: 0.9rem; color: var(--text-gray);">
+                - OR Continue as Guest -
+            </p>
+            
+            <input type="text" id="displayName" placeholder="Enter your display name">
+            <button class="btn" id="guestLogin"><i class="fas fa-user"></i> Continue as Guest</button>
+        </div>
+    </div>
+
+    <div class="container" id="appContainer" style="display: none;">
+        <header>
+            <h1><i class="fas fa-fire"></i> FireChat</h1>
+            <p>Free real-time chat application with Firebase and GitHub Pages</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="sidebar">
+                <div class="user-profile">
+                    <div class="avatar" id="userAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <h3 id="userName">Guest User</h3>
+                        <p id="userStatus">Online</p>
+                        <button id="logoutBtn" class="btn" style="margin-top: 10px; padding: 8px 15px; background: rgba(255,255,255,0.1);">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="online-users">
+                    <h2>Online Now <span id="onlineCount">(0)</span></h2>
+                    <ul class="user-list" id="onlineUsers">
+                        <li>
+                            <div class="status"></div>
+                            <div class="avatar-sm">S</div>
+                            <span>System Bot</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="avatar">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="chat-header-info">
+                        <h3>General Chat Room</h3>
+                        <p id="participantCount">1 participant</p>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message received">
+                        <div class="sender">System Bot</div>
+                        <div class="content">Welcome to FireChat! Send a message to start chatting.</div>
+                        <div class="time">Just now</div>
+                    </div>
+                </div>
+                
+                <div class="message-input">
+                    <input type="text" id="messageInput" placeholder="Type your message here...">
+                    <button id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="deployment-section">
+            <h2><i class="fas fa-rocket"></i> Step-by-Step Deployment Guide (100% Free)</h2>
+            
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3><i class="fab fa-google"></i> Create Firebase Project</h3>
+                    <p>Firebase provides free backend services for your chat app.</p>
+                    <ul>
+                        <li>Go to <a href="https://firebase.google.com/" target="_blank" style="color: var(--accent);">firebase.google.com</a></li>
+                        <li>Click "Get Started" and create a new project</li>
+                        <li>Name your project (e.g., "FireChat")</li>
+                        <li>Disable Google Analytics for this demo</li>
+                    </ul>
+                    <button class="btn" onclick="window.open('https://firebase.google.com/', '_blank')">
+                        <i class="fas fa-external-link-alt"></i> Go to Firebase
+                    </button>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3><i class="fas fa-cog"></i> Configure Firebase Services</h3>
+                    <p>Set up the necessary services for your chat app:</p>
+                    <ul>
+                        <li>In Firebase Console, go to <strong>Authentication</strong> > Sign-in method > Enable <strong>Google</strong></li>
+                        <li>Go to <strong>Realtime Database</strong> > Create Database > Start in <strong>test mode</strong></li>
+                        <li>No need to change security rules for this demo</li>
+                    </ul>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3><i class="fas fa-code"></i> Get Firebase Config</h3>
+                    <p>Add a web app to your Firebase project to get configuration:</p>
+                    <ul>
+                        <li>In Firebase Console, go to Project Settings</li>
+                        <li>Under "Your apps", click the web icon (</>)</li>
+                        <li>Register your app (e.g., "FireChat")</li>
+                        <li>Copy the configuration object</li>
+                    </ul>
+                    <div class="firebase-config">
+                        <h3><i class="fas fa-copy"></i> Firebase Configuration</h3>
+                        <code id="firebaseConfigCode">
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};</code>
+                    </div>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3><i class="fab fa-github"></i> Create GitHub Repository</h3>
+                    <p>GitHub Pages provides free hosting for your chat app.</p>
+                    <ul>
+                        <li>Go to <a href="https://github.com/" target="_blank" style="color: var(--accent);">github.com</a> and log in</li>
+                        <li>Click "+" > New repository</li>
+                        <li>Name your repository (e.g., "firechat")</li>
+                        <li>Set to "Public"</li>
+                        <li>Click "Create repository"</li>
+                    </ul>
+                    <button class="btn" onclick="window.open('https://github.com/', '_blank')">
+                        <i class="fab fa-github"></i> Go to GitHub
+                    </button>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">5</div>
+                    <h3><i class="fas fa-file-code"></i> Create HTML File</h3>
+                    <p>Create an index.html file with your chat app code:</p>
+                    <ul>
+                        <li>Copy the entire code from this page</li>
+                        <li>Replace the Firebase config placeholder with your actual config</li>
+                        <li>Save the file as <strong>index.html</strong></li>
+                    </ul>
+                    <p><strong>Important:</strong> Replace the placeholder config with your actual Firebase config!</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">6</div>
+                    <h3><i class="fas fa-cloud-upload-alt"></i> Deploy to GitHub Pages</h3>
+                    <p>Upload your file and enable GitHub Pages:</p>
+                    <ul>
+                        <li>In your GitHub repository, click "Add file" > "Upload files"</li>
+                        <li>Upload your index.html file</li>
+                        <li>Go to Settings > Pages</li>
+                        <li>Set source to "main" branch and "/ (root)" folder</li>
+                        <li>Click "Save"</li>
+                    </ul>
+                    <p>Your app will be live at:<br>
+                    <code>https://[username].github.io/[repository]</code></p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>FireChat - Free Real-Time Chat Application | Deployed with Firebase and GitHub Pages</p>
+            <p>This application uses Firebase's free tier - no credit card required</p>
+        </footer>
+    </div>
+
+    <script>
+        // Firebase configuration - REPLACE WITH YOUR OWN CONFIG
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+        
+        // DOM Elements
+        const loginModal = document.getElementById('loginModal');
+        const appContainer = document.getElementById('appContainer');
+        const googleLoginBtn = document.getElementById('googleLogin');
+        const guestLoginBtn = document.getElementById('guestLogin');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const closeModal = document.getElementById('closeModal');
+        const displayNameInput = document.getElementById('displayName');
+        const loginError = document.getElementById('loginError');
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const onlineUsersList = document.getElementById('onlineUsers');
+        const onlineCount = document.getElementById('onlineCount');
+        const participantCount = document.getElementById('participantCount');
+        const userName = document.getElementById('userName');
+        const userAvatar = document.getElementById('userAvatar');
+        
+        // Current user data
+        let currentUser = {
+            uid: null,
+            displayName: 'Guest User',
+            photoURL: null,
+            isGuest: true
+        };
+        
+        // Show login modal initially
+        loginModal.style.display = 'flex';
+        appContainer.style.display = 'none';
+        
+        // Close modal button
+        closeModal.addEventListener('click', () => {
+            loginModal.style.display = 'none';
+        });
+        
+        // Sign in with Google
+        googleLoginBtn.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .catch(error => {
+                    loginError.textContent = `Login failed: ${error.message}`;
+                });
+        });
+        
+        // Sign in as guest
+        guestLoginBtn.addEventListener('click', () => {
+            const name = displayNameInput.value.trim() || 'Guest User';
+            currentUser = {
+                uid: `guest_${Date.now()}`,
+                displayName: name,
+                photoURL: null,
+                isGuest: true
+            };
+            startApp();
+        });
+        
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+            loginModal.style.display = 'flex';
+            appContainer.style.display = 'none';
+            currentUser = {
+                uid: null,
+                displayName: 'Guest User',
+                photoURL: null,
+                isGuest: true
+            };
+        });
+        
+        // Firebase Auth State Listener
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in with Google
+                currentUser = {
+                    uid: user.uid,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL,
+                    isGuest: false
+                };
+                startApp();
+            }
+        });
+        
+        function startApp() {
+            loginModal.style.display = 'none';
+            appContainer.style.display = 'flex';
+            
+            // Update user info
+            userName.textContent = currentUser.displayName;
+            
+            // Set avatar
+            if (currentUser.photoURL) {
+                userAvatar.innerHTML = `<img src="${currentUser.photoURL}" style="width: 100%; height: 100%; border-radius: 50%;">`;
+            } else {
+                userAvatar.innerHTML = `<span>${currentUser.displayName.charAt(0).toUpperCase()}</span>`;
+            }
+            
+            // Initialize chat
+            initChat();
+            initOnlineUsers();
+        }
+        
+        function initChat() {
+            // Reference to the messages in database
+            const messagesRef = database.ref('messages').limitToLast(50);
+            
+            // Load existing messages
+            messagesRef.on('child_added', snapshot => {
+                const message = snapshot.val();
+                addMessageToUI(message);
+            });
+            
+            // Send message
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', e => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+        
+        function sendMessage() {
+            const messageText = messageInput.value.trim();
+            if (messageText) {
+                // Create message object
+                const message = {
+                    text: messageText,
+                    name: currentUser.displayName,
+                    timestamp: Date.now(),
+                    uid: currentUser.uid,
+                    isGuest: currentUser.isGuest
+                };
+                
+                // Push to database
+                database.ref('messages').push(message);
+                
+                // Clear input
+                messageInput.value = '';
+            }
+        }
+        
+        function addMessageToUI(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            
+            // Check if message is from current user
+            const isCurrentUser = message.uid === currentUser.uid;
+            messageDiv.classList.add(isCurrentUser ? 'sent' : 'received');
+            
+            // Format time
+            const time = new Date(message.timestamp);
+            const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="sender">${message.name} ${message.isGuest ? '(Guest)' : ''}</div>
+                <div class="content">${message.text}</div>
+                <div class="time">${timeString}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function initOnlineUsers() {
+            const userStatusRef = database.ref('users');
+            const userRef = database.ref('users/' + currentUser.uid);
+            
+            // Set user status to online
+            userRef.set({
+                name: currentUser.displayName,
+                status: 'online',
+                lastOnline: Date.now(),
+                isGuest: currentUser.isGuest
+            });
+            
+            // Update status when user disconnects
+            userRef.onDisconnect().update({
+                status: 'offline',
+                lastOnline: Date.now()
+            });
+            
+            // Listen for online users
+            userStatusRef.on('value', snapshot => {
+                onlineUsersList.innerHTML = '';
+                let onlineCountValue = 0;
+                
+                // Add system bot
+                const systemBot = document.createElement('li');
+                systemBot.innerHTML = `
+                    <div class="status" style="background: #f72585;"></div>
+                    <div class="avatar-sm">S</div>
+                    <span>System Bot</span>
+                `;
+                onlineUsersList.appendChild(systemBot);
+                
+                // Add real users
+                snapshot.forEach(childSnapshot => {
+                    const user = childSnapshot.val();
+                    if (user.status === 'online') {
+                        onlineCountValue++;
+                        
+                        const userItem = document.createElement('li');
+                        userItem.innerHTML = `
+                            <div class="status"></div>
+                            <div class="avatar-sm">${user.name.charAt(0).toUpperCase()}</div>
+                            <span>${user.name} ${user.isGuest ? '(Guest)' : ''}</span>
+                        `;
+                        onlineUsersList.appendChild(userItem);
+                    }
+                });
+                
+                onlineCount.textContent = `(${onlineCountValue + 1})`;
+                participantCount.textContent = `${onlineCountValue + 1} participants`;
+            });
+        }
+        
+        // Auto-scroll to bottom of chat
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Initialize the app
+        window.onload = function() {
+            // Add a welcome message after a delay
+            setTimeout(() => {
+                const welcomeMessage = {
+                    text: "This is a fully functional chat application. Follow the steps below to deploy your own version for free!",
+                    name: "System Bot",
+                    timestamp: Date.now(),
+                    uid: "system",
+                    isGuest: false
+                };
+                addMessageToUI(welcomeMessage);
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
