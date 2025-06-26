@@ -1039,7 +1039,10 @@
             // Load existing messages
             messagesRef.on('child_added', snapshot => {
                 const message = snapshot.val();
-                addMessageToUI(message);
+                // Only add messages that are not from the system
+                if (message.uid !== "system") {
+                    addMessageToUI(message);
+                }
             });
             
             // Send message
@@ -1064,7 +1067,23 @@
                 };
                 
                 // Push to database
-                database.ref('messages').push(message);
+                database.ref('messages').push(message)
+                    .then(() => {
+                        // Message sent successfully
+                    })
+                    .catch(error => {
+                        console.error('Error sending message:', error);
+                        // Show error to user
+                        const errorMsg = document.createElement('div');
+                        errorMsg.classList.add('message', 'received');
+                        errorMsg.innerHTML = `
+                            <div class="sender">System Bot</div>
+                            <div class="content">Failed to send message. Please try again.</div>
+                            <div class="time">Just now</div>
+                        `;
+                        chatMessages.appendChild(errorMsg);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    });
                 
                 // Clear input
                 messageInput.value = '';
@@ -1106,12 +1125,18 @@
                 status: 'online',
                 lastOnline: Date.now(),
                 isGuest: currentUser.isGuest
+            })
+            .catch(error => {
+                console.error('Error setting user status:', error);
             });
             
             // Update status when user disconnects
             userRef.onDisconnect().update({
                 status: 'offline',
                 lastOnline: Date.now()
+            })
+            .catch(error => {
+                console.error('Error setting onDisconnect:', error);
             });
             
             // Listen for online users
@@ -1131,7 +1156,7 @@
                 // Add real users
                 snapshot.forEach(childSnapshot => {
                     const user = childSnapshot.val();
-                    if (user.status === 'online') {
+                    if (user.status === 'online' && user.name) {
                         onlineCountValue++;
                         
                         const userItem = document.createElement('li');
@@ -1146,6 +1171,8 @@
                 
                 onlineCount.textContent = `(${onlineCountValue + 1})`;
                 participantCount.textContent = onlineCountValue + 1;
+            }, (error) => {
+                console.error('Error loading online users:', error);
             });
         }
         
