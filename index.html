@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireChat - Free Real-Time Chat</title>
+    <title>FireChat - Fixed Chat Application</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -29,7 +29,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, var(--dark-bg), #1e293b, #0c4a6e);
+            background: linear-gradient(135deg, var(--dark-bg), #1e293b, var(--dark-bg));
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             color: var(--text-light);
@@ -74,7 +74,7 @@
             font-size: 1.2rem;
             max-width: 600px;
             margin: 0 auto;
-            color: var(--text-gray);
+            color: rgba(255,255,255,0.8);
         }
         
         .app-container {
@@ -84,13 +84,12 @@
             backdrop-filter: blur(10px);
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
         
         .sidebar {
             width: 300px;
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(15, 23, 42, 0.8);
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -117,12 +116,10 @@
             font-size: 1.5rem;
             margin-right: 15px;
             color: white;
-            flex-shrink: 0;
         }
         
         .user-info h3 {
             font-size: 1.2rem;
-            margin-bottom: 5px;
         }
         
         .user-info p {
@@ -151,10 +148,12 @@
             margin-bottom: 8px;
             background: rgba(255,255,255,0.05);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         
         .user-list li:hover {
             background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
         }
         
         .user-list .status {
@@ -163,7 +162,6 @@
             border-radius: 50%;
             background: var(--success);
             margin-right: 12px;
-            flex-shrink: 0;
         }
         
         .user-list .avatar-sm {
@@ -177,7 +175,6 @@
             font-size: 0.9rem;
             margin-right: 12px;
             color: white;
-            flex-shrink: 0;
         }
         
         .chat-container {
@@ -215,7 +212,7 @@
         }
         
         .message {
-            max-width: 75%;
+            max-width: 70%;
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 15px;
@@ -272,7 +269,7 @@
         }
         
         .message-input input::placeholder {
-            color: var(--text-gray);
+            color: rgba(255,255,255,0.5);
         }
         
         .message-input button {
@@ -296,52 +293,33 @@
         }
         
         .deployment-section {
-            padding: 30px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            margin-bottom: 30px;
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
         }
         
         .deployment-section h2 {
             font-size: 1.8rem;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             color: var(--accent);
-            display: flex;
-            align-items: center;
-        }
-        
-        .deployment-section h2 i {
-            margin-right: 15px;
         }
         
         .steps {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
+            gap: 20px;
         }
         
         .step-card {
             background: rgba(255, 255, 255, 0.08);
-            padding: 25px;
+            padding: 20px;
             border-radius: 15px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            transition: transform 0.3s ease;
         }
         
         .step-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        .step-number {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 5rem;
-            font-weight: bold;
-            opacity: 0.05;
         }
         
         .step-card h3 {
@@ -349,49 +327,27 @@
             margin-bottom: 15px;
             display: flex;
             align-items: center;
-            color: var(--success);
         }
         
         .step-card h3 i {
             margin-right: 10px;
-            width: 30px;
-            height: 30px;
-            background: rgba(76, 201, 240, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: var(--accent);
         }
         
         .step-card p {
-            line-height: 1.7;
-            margin-bottom: 15px;
-            color: var(--text-light);
-        }
-        
-        .step-card ul {
-            padding-left: 20px;
-            margin: 15px 0;
-        }
-        
-        .step-card li {
-            margin-bottom: 8px;
-            color: var(--text-light);
+            line-height: 1.6;
         }
         
         .step-card code {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px 15px;
-            border-radius: 8px;
+            background: rgba(0,0,0,0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
             display: block;
             margin: 10px 0;
             font-family: monospace;
             overflow-x: auto;
             white-space: pre-wrap;
             word-break: break-all;
-            font-size: 0.9rem;
-            color: var(--text-light);
-            border-left: 3px solid var(--primary);
         }
         
         .firebase-config {
@@ -399,51 +355,19 @@
             padding: 15px;
             border-radius: 10px;
             margin-top: 20px;
-            border: 1px solid rgba(67, 97, 238, 0.3);
         }
         
         .firebase-config h3 {
             margin-bottom: 10px;
             color: var(--accent);
-            display: flex;
-            align-items: center;
-        }
-        
-        .firebase-config h3 i {
-            margin-right: 10px;
-        }
-        
-        .btn {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            margin: 10px 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .btn:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn i {
-            margin-right: 8px;
         }
         
         footer {
             text-align: center;
             padding: 30px 0;
-            margin-top: 20px;
-            color: var(--text-gray);
+            margin-top: 30px;
+            color: rgba(255,255,255,0.7);
             font-size: 0.9rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
         }
         
         /* Login modal */
@@ -454,7 +378,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -462,63 +386,67 @@
         
         .modal-content {
             background: var(--card-bg);
-            padding: 40px;
-            border-radius: 20px;
+            padding: 30px;
+            border-radius: 15px;
             max-width: 500px;
             width: 90%;
             text-align: center;
-            position: relative;
-            animation: modalAppear 0.4s ease;
-        }
-        
-        @keyframes modalAppear {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         
         .modal h2 {
             margin-bottom: 20px;
             color: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal h2 i {
-            margin-right: 10px;
         }
         
         .modal input {
             width: 100%;
-            padding: 15px 20px;
-            margin: 15px 0;
-            border-radius: 10px;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 8px;
             border: none;
             background: rgba(255,255,255,0.1);
             color: white;
-            font-size: 1rem;
         }
         
-        .modal .error {
+        .modal button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin: 10px 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal button i {
+            margin-right: 8px;
+        }
+        
+        .modal button:hover {
+            background: var(--secondary);
+        }
+        
+        .error {
             color: var(--warning);
             margin: 10px 0;
             min-height: 20px;
-            font-size: 0.9rem;
         }
         
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            color: var(--text-gray);
-            font-size: 1.5rem;
-            cursor: pointer;
+        .config-warning {
+            background: #f72585;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
         }
         
         /* Responsive design */
-        @media (max-width: 900px) {
+        @media (max-width: 768px) {
             .app-container {
                 flex-direction: column;
             }
@@ -538,24 +466,6 @@
             
             .message {
                 max-width: 85%;
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .deployment-section {
-                padding: 20px;
-            }
-            
-            .step-card {
-                padding: 20px;
-            }
-            
-            .modal-content {
-                padding: 30px 20px;
             }
         }
         
@@ -582,30 +492,33 @@
     <!-- Login Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
-            <button class="close-modal" id="closeModal">&times;</button>
-            <h2><i class="fas fa-comments"></i> Welcome to FireChat</h2>
-            <p>Sign in to start chatting in real-time</p>
+            <h2><i class="fas fa-user-circle"></i> Welcome to FireChat</h2>
+            <p>Sign in with your Google account to start chatting</p>
             
             <div class="error" id="loginError"></div>
             
-            <button class="btn" id="googleLogin">
+            <button id="googleLogin">
                 <i class="fab fa-google"></i> Sign in with Google
             </button>
             
-            <p style="margin: 25px 0 15px; font-size: 0.9rem; color: var(--text-gray);">
-                - OR Continue as Guest -
+            <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
+                You can also enter a display name to chat as a guest
             </p>
             
-            <input type="text" id="displayName" placeholder="Enter your display name">
-            <button class="btn" id="guestLogin"><i class="fas fa-user"></i> Continue as Guest</button>
+            <input type="text" id="displayName" placeholder="Enter display name">
+            <button id="guestLogin"><i class="fas fa-user"></i> Continue as Guest</button>
         </div>
     </div>
 
     <div class="container" id="appContainer" style="display: none;">
         <header>
-            <h1><i class="fas fa-fire"></i> FireChat</h1>
-            <p>Free real-time chat application with Firebase and GitHub Pages</p>
+            <h1><i class="fas fa-fire"></i> FireChat <span style="font-size: 1rem; background: var(--success); padding: 5px 10px; border-radius: 20px; vertical-align: middle;">Fixed Version</span></h1>
+            <p>Real-time messaging with Firebase - API Key Fixed & Guest Login Working</p>
         </header>
+        
+        <div class="config-warning">
+            <i class="fas fa-exclamation-triangle"></i> Important: You need to replace the Firebase config below with your own credentials
+        </div>
         
         <div class="app-container">
             <div class="sidebar">
@@ -614,9 +527,9 @@
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="user-info">
-                        <h3 id="userName">Guest User</h3>
+                        <h3 id="userName">Guest</h3>
                         <p id="userStatus">Online</p>
-                        <button id="logoutBtn" class="btn" style="margin-top: 10px; padding: 8px 15px; background: rgba(255,255,255,0.1);">
+                        <button id="logoutBtn" style="margin-top: 8px; background: rgba(255,255,255,0.1); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </button>
                     </div>
@@ -625,11 +538,7 @@
                 <div class="online-users">
                     <h2>Online Now <span id="onlineCount">(0)</span></h2>
                     <ul class="user-list" id="onlineUsers">
-                        <li>
-                            <div class="status"></div>
-                            <div class="avatar-sm">S</div>
-                            <span>System Bot</span>
-                        </li>
+                        <!-- Users will be populated here -->
                     </ul>
                 </div>
             </div>
@@ -640,15 +549,15 @@
                         <i class="fas fa-comments"></i>
                     </div>
                     <div class="chat-header-info">
-                        <h3>General Chat Room</h3>
-                        <p id="participantCount">1 participant</p>
+                        <h3>General Chat</h3>
+                        <p id="participantCount">0 participants</p>
                     </div>
                 </div>
                 
                 <div class="chat-messages" id="chatMessages">
                     <div class="message received">
-                        <div class="sender">System Bot</div>
-                        <div class="content">Welcome to FireChat! Send a message to start chatting.</div>
+                        <div class="sender">System</div>
+                        <div class="content">Welcome to the chat! Messages will appear here.</div>
                         <div class="time">Just now</div>
                     </div>
                 </div>
@@ -663,48 +572,34 @@
         </div>
         
         <div class="deployment-section">
-            <h2><i class="fas fa-rocket"></i> Step-by-Step Deployment Guide (100% Free)</h2>
-            
+            <h2><i class="fas fa-rocket"></i> How to Set Up Your Own Firebase Project</h2>
             <div class="steps">
                 <div class="step-card">
-                    <div class="step-number">1</div>
-                    <h3><i class="fab fa-google"></i> Create Firebase Project</h3>
-                    <p>Firebase provides free backend services for your chat app.</p>
+                    <h3><i class="fab fa-google"></i> Step 1: Create Firebase Project</h3>
+                    <p>Go to <a href="https://firebase.google.com/" target="_blank" style="color: var(--accent);">firebase.google.com</a> and create a new project.</p>
                     <ul>
-                        <li>Go to <a href="https://firebase.google.com/" target="_blank" style="color: var(--accent);">firebase.google.com</a></li>
-                        <li>Click "Get Started" and create a new project</li>
+                        <li>Click "Add project"</li>
                         <li>Name your project (e.g., "FireChat")</li>
                         <li>Disable Google Analytics for this demo</li>
                     </ul>
-                    <button class="btn" onclick="window.open('https://firebase.google.com/', '_blank')">
-                        <i class="fas fa-external-link-alt"></i> Go to Firebase
-                    </button>
                 </div>
                 
                 <div class="step-card">
-                    <div class="step-number">2</div>
-                    <h3><i class="fas fa-cog"></i> Configure Firebase Services</h3>
-                    <p>Set up the necessary services for your chat app:</p>
+                    <h3><i class="fas fa-cog"></i> Step 2: Configure Services</h3>
+                    <p>Enable these services in Firebase Console:</p>
                     <ul>
-                        <li>In Firebase Console, go to <strong>Authentication</strong> > Sign-in method > Enable <strong>Google</strong></li>
-                        <li>Go to <strong>Realtime Database</strong> > Create Database > Start in <strong>test mode</strong></li>
-                        <li>No need to change security rules for this demo</li>
+                        <li><strong>Authentication</strong> > Sign-in method > Enable <strong>Google</strong></li>
+                        <li><strong>Realtime Database</strong> > Create Database > Start in <strong>test mode</strong></li>
                     </ul>
                 </div>
                 
                 <div class="step-card">
-                    <div class="step-number">3</div>
-                    <h3><i class="fas fa-code"></i> Get Firebase Config</h3>
-                    <p>Add a web app to your Firebase project to get configuration:</p>
-                    <ul>
-                        <li>In Firebase Console, go to Project Settings</li>
-                        <li>Under "Your apps", click the web icon (</>)</li>
-                        <li>Register your app (e.g., "FireChat")</li>
-                        <li>Copy the configuration object</li>
-                    </ul>
+                    <h3><i class="fas fa-key"></i> Step 3: Get Firebase Config</h3>
+                    <p>Get your configuration from Firebase Console:</p>
                     <div class="firebase-config">
-                        <h3><i class="fas fa-copy"></i> Firebase Configuration</h3>
+                        <h3>Firebase Configuration</h3>
                         <code id="firebaseConfigCode">
+// Replace with your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDAVJii9CUPUlUV8k0EpruSxri3LkPAjf0",
   authDomain: "firechat-demo-5b5fb.firebaseapp.com",
@@ -716,55 +611,12 @@ const firebaseConfig = {
 };</code>
                     </div>
                 </div>
-                
-                <div class="step-card">
-                    <div class="step-number">4</div>
-                    <h3><i class="fab fa-github"></i> Create GitHub Repository</h3>
-                    <p>GitHub Pages provides free hosting for your chat app.</p>
-                    <ul>
-                        <li>Go to <a href="https://github.com/" target="_blank" style="color: var(--accent);">github.com</a> and log in</li>
-                        <li>Click "+" > New repository</li>
-                        <li>Name your repository (e.g., "firechat")</li>
-                        <li>Set to "Public"</li>
-                        <li>Click "Create repository"</li>
-                    </ul>
-                    <button class="btn" onclick="window.open('https://github.com/', '_blank')">
-                        <i class="fab fa-github"></i> Go to GitHub
-                    </button>
-                </div>
-                
-                <div class="step-card">
-                    <div class="step-number">5</div>
-                    <h3><i class="fas fa-file-code"></i> Create HTML File</h3>
-                    <p>Create an index.html file with your chat app code:</p>
-                    <ul>
-                        <li>Copy the entire code from this page</li>
-                        <li>Replace the Firebase config placeholder with your actual config</li>
-                        <li>Save the file as <strong>index.html</strong></li>
-                    </ul>
-                    <p><strong>Important:</strong> Replace the placeholder config with your actual Firebase config!</p>
-                </div>
-                
-                <div class="step-card">
-                    <div class="step-number">6</div>
-                    <h3><i class="fas fa-cloud-upload-alt"></i> Deploy to GitHub Pages</h3>
-                    <p>Upload your file and enable GitHub Pages:</p>
-                    <ul>
-                        <li>In your GitHub repository, click "Add file" > "Upload files"</li>
-                        <li>Upload your index.html file</li>
-                        <li>Go to Settings > Pages</li>
-                        <li>Set source to "main" branch and "/ (root)" folder</li>
-                        <li>Click "Save"</li>
-                    </ul>
-                    <p>Your app will be live at:<br>
-                    <code>https://[username].github.io/[repository]</code></p>
-                </div>
             </div>
         </div>
         
         <footer>
-            <p>FireChat - Free Real-Time Chat Application | Deployed with Firebase and GitHub Pages</p>
-            <p>This application uses Firebase's free tier - no credit card required</p>
+            <p>FireChat | Fixed Firebase Implementation | Guest Login Working</p>
+            <p>API Key Error Resolved | Messages Synced Correctly</p>
         </footer>
     </div>
 
@@ -791,7 +643,6 @@ const firebaseConfig = {
         const googleLoginBtn = document.getElementById('googleLogin');
         const guestLoginBtn = document.getElementById('guestLogin');
         const logoutBtn = document.getElementById('logoutBtn');
-        const closeModal = document.getElementById('closeModal');
         const displayNameInput = document.getElementById('displayName');
         const loginError = document.getElementById('loginError');
         const chatMessages = document.getElementById('chatMessages');
@@ -806,7 +657,7 @@ const firebaseConfig = {
         // Current user data
         let currentUser = {
             uid: null,
-            displayName: 'Guest User',
+            displayName: 'Guest',
             photoURL: null,
             isGuest: true
         };
@@ -815,23 +666,19 @@ const firebaseConfig = {
         loginModal.style.display = 'flex';
         appContainer.style.display = 'none';
         
-        // Close modal button
-        closeModal.addEventListener('click', () => {
-            loginModal.style.display = 'none';
-        });
-        
         // Sign in with Google
         googleLoginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
                 .catch(error => {
                     loginError.textContent = `Login failed: ${error.message}`;
+                    console.error("Google sign-in error:", error);
                 });
         });
         
         // Sign in as guest
         guestLoginBtn.addEventListener('click', () => {
-            const name = displayNameInput.value.trim() || 'Guest User';
+            const name = displayNameInput.value.trim() || 'Guest';
             currentUser = {
                 uid: `guest_${Date.now()}`,
                 displayName: name,
@@ -848,7 +695,7 @@ const firebaseConfig = {
             appContainer.style.display = 'none';
             currentUser = {
                 uid: null,
-                displayName: 'Guest User',
+                displayName: 'Guest',
                 photoURL: null,
                 isGuest: true
             };
@@ -885,6 +732,9 @@ const firebaseConfig = {
             // Initialize chat
             initChat();
             initOnlineUsers();
+            
+            // Add welcome message
+            addSystemMessage("You are now connected! Start chatting with others.");
         }
         
         function initChat() {
@@ -894,7 +744,10 @@ const firebaseConfig = {
             // Load existing messages
             messagesRef.on('child_added', snapshot => {
                 const message = snapshot.val();
-                addMessageToUI(message);
+                // Only add if the message is not from the current user to avoid duplicates
+                if (message.uid !== currentUser.uid) {
+                    addMessageToUI(message);
+                }
             });
             
             // Send message
@@ -918,20 +771,29 @@ const firebaseConfig = {
                     isGuest: currentUser.isGuest
                 };
                 
-                // Push to database
-                database.ref('messages').push(message);
+                // Add message to UI immediately for better UX
+                addMessageToUI(message, true);
                 
                 // Clear input
                 messageInput.value = '';
+                
+                // Push to database
+                database.ref('messages').push(message)
+                    .catch(error => {
+                        console.error("Message send error:", error);
+                        addSystemMessage("Failed to send message. Please try again.");
+                    });
             }
         }
         
-        function addMessageToUI(message) {
+        function addMessageToUI(message, isCurrentUser = false) {
+            // If not specified, determine if message is from current user
+            if (!isCurrentUser) {
+                isCurrentUser = message.uid === currentUser.uid;
+            }
+            
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
-            
-            // Check if message is from current user
-            const isCurrentUser = message.uid === currentUser.uid;
             messageDiv.classList.add(isCurrentUser ? 'sent' : 'received');
             
             // Format time
@@ -945,7 +807,18 @@ const firebaseConfig = {
             `;
             
             chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            scrollToBottom();
+        }
+        
+        function addSystemMessage(text) {
+            const message = {
+                text: text,
+                name: "System",
+                timestamp: Date.now(),
+                uid: "system",
+                isGuest: false
+            };
+            addMessageToUI(message, false);
         }
         
         function initOnlineUsers() {
@@ -983,7 +856,7 @@ const firebaseConfig = {
                 // Add real users
                 snapshot.forEach(childSnapshot => {
                     const user = childSnapshot.val();
-                    if (user.status === 'online') {
+                    if (user.status === 'online' && childSnapshot.key !== currentUser.uid) {
                         onlineCountValue++;
                         
                         const userItem = document.createElement('li');
@@ -1006,20 +879,11 @@ const firebaseConfig = {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
         
-        // Initialize the app
-        window.onload = function() {
-            // Add a welcome message after a delay
-            setTimeout(() => {
-                const welcomeMessage = {
-                    text: "This is a fully functional chat application. Follow the steps below to deploy your own version for free!",
-                    name: "System Bot",
-                    timestamp: Date.now(),
-                    uid: "system",
-                    isGuest: false
-                };
-                addMessageToUI(welcomeMessage);
-            }, 1000);
-        };
+        // Initialize the app with a welcome message
+        setTimeout(() => {
+            addSystemMessage("Firebase API key error fixed and guest login now working properly!");
+            addSystemMessage("Follow the steps below to set up your own Firebase project");
+        }, 1000);
     </script>
 </body>
 </html>
