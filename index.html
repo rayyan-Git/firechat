@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireChat Pro | Professional Real-Time Chat</title>
+    <title>FireChat Pro | Telegram-Style Messaging</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -203,7 +203,12 @@
             color: #ff6b81;
         }
         
-        .online-users h2 {
+        .chat-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .chat-list h2 {
             font-size: 1.3rem;
             margin-bottom: 18px;
             padding-bottom: 12px;
@@ -214,13 +219,7 @@
             font-weight: 600;
         }
         
-        .user-list {
-            list-style: none;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .user-list li {
+        .chat-item {
             display: flex;
             align-items: center;
             padding: 14px;
@@ -229,15 +228,21 @@
             background: rgba(255, 255, 255, 0.04);
             transition: all 0.3s ease;
             border: 1px solid var(--border-color);
+            cursor: pointer;
         }
         
-        .user-list li:hover {
+        .chat-item:hover {
             background: rgba(255, 255, 255, 0.08);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
-        .user-list .status {
+        .chat-item.active {
+            background: rgba(67, 97, 238, 0.15);
+            border-color: rgba(67, 97, 238, 0.3);
+        }
+        
+        .chat-item .status {
             width: 10px;
             height: 10px;
             border-radius: 50%;
@@ -247,7 +252,7 @@
             box-shadow: 0 0 0 4px rgba(46, 196, 182, 0.15);
         }
         
-        .user-list .avatar-sm {
+        .chat-item .avatar-sm {
             width: 38px;
             height: 38px;
             border-radius: 12px;
@@ -260,6 +265,55 @@
             color: white;
             flex-shrink: 0;
             font-weight: 600;
+        }
+        
+        .chat-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .chat-item-info h3 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-item-info p {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-item-time {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            margin-left: 10px;
+        }
+        
+        .new-chat-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            margin-top: 15px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .new-chat-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
         }
         
         .chat-container {
@@ -282,6 +336,10 @@
             background: linear-gradient(45deg, var(--secondary), #f72585);
         }
         
+        .chat-header-info {
+            flex: 1;
+        }
+        
         .chat-header-info h3 {
             font-size: 1.3rem;
             font-weight: 600;
@@ -293,6 +351,30 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+        
+        .chat-header-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .chat-header-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+        }
+        
+        .chat-header-btn:hover {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--accent);
         }
         
         .chat-messages {
@@ -390,6 +472,34 @@
         .message-action:hover {
             background: rgba(255, 255, 255, 0.2);
             color: var(--accent);
+        }
+        
+        .reactions {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .reaction {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+        }
+        
+        .reaction:hover {
+            background: rgba(67, 97, 238, 0.2);
+        }
+        
+        .reaction.active {
+            background: rgba(67, 97, 238, 0.3);
+            border-color: var(--primary);
         }
         
         .message-input {
@@ -870,6 +980,110 @@
             right: 10%;
             background: radial-gradient(circle, rgba(114, 9, 183, 0.15) 0%, transparent 70%);
         }
+        
+        /* Reaction picker */
+        .reaction-picker {
+            position: absolute;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            display: none;
+        }
+        
+        .reaction-picker.show {
+            display: flex;
+        }
+        
+        .reaction-emoji {
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .reaction-emoji:hover {
+            transform: scale(1.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Location modal */
+        .location-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .location-content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        
+        .location-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .location-header h3 {
+            font-size: 1.3rem;
+        }
+        
+        .location-close {
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .location-details {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .location-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .location-info i {
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+        
+        .location-map {
+            height: 200px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-gray);
+            border: 1px dashed var(--border-color);
+        }
     </style>
 </head>
 <body>
@@ -907,7 +1121,7 @@
                 </div>
                 <h1>FireChat Pro</h1>
             </div>
-            <p>Professional-grade real-time chat with end-to-end encryption</p>
+            <p>Telegram-style messaging with advanced features</p>
         </header>
         
         <div class="app-container">
@@ -925,33 +1139,41 @@
                     </div>
                 </div>
                 
-                <div class="online-users">
-                    <h2><i class="fas fa-user-friends"></i> Online Now <span id="onlineCount">(0)</span></h2>
-                    <ul class="user-list" id="onlineUsers">
-                        <li>
-                            <div class="status"></div>
-                            <div class="avatar-sm">S</div>
-                            <span>System Bot</span>
-                        </li>
+                <div class="chat-list">
+                    <h2><i class="fas fa-comments"></i> Conversations</h2>
+                    <ul id="conversationList">
+                        <!-- Conversations will be populated here -->
                     </ul>
                 </div>
+                
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i> New Chat
+                </button>
             </div>
             
             <div class="chat-container">
                 <div class="chat-header">
-                    <div class="avatar">
-                        <i class="fas fa-comments"></i>
+                    <div class="avatar" id="chatHeaderAvatar">
+                        <i class="fas fa-user"></i>
                     </div>
                     <div class="chat-header-info">
-                        <h3>General Chat Room</h3>
-                        <p><i class="fas fa-user"></i> <span id="participantCount">1</span> participants</p>
+                        <h3 id="chatHeaderName">Select a conversation</h3>
+                        <p><i class="fas fa-user"></i> <span id="chatHeaderStatus">Offline</span></p>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button class="chat-header-btn" id="locationBtn" title="View Location">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </button>
+                        <button class="chat-header-btn" id="callBtn" title="Start Voice Call">
+                            <i class="fas fa-phone"></i>
+                        </button>
                     </div>
                 </div>
                 
                 <div class="chat-messages" id="chatMessages">
                     <div class="message received">
                         <div class="sender">System Bot</div>
-                        <div class="content">Welcome to FireChat Pro! This is a secure, professional chat environment.</div>
+                        <div class="content">Welcome to FireChat Pro! Select a conversation to start chatting.</div>
                         <div class="time">Just now</div>
                     </div>
                 </div>
@@ -967,41 +1189,41 @@
         
         <div class="features-section">
             <div class="section-title">
-                <h2>Professional Communication</h2>
+                <h2>Advanced Chat Features</h2>
                 <p>FireChat Pro delivers enterprise-grade features with intuitive design</p>
             </div>
             
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-bolt"></i>
+                        <i class="fas fa-user-friends"></i>
                     </div>
-                    <h3>Real-Time Messaging</h3>
-                    <p>Messages are delivered instantly with end-to-end encryption for maximum security.</p>
+                    <h3>Private Messaging</h3>
+                    <p>One-on-one conversations with end-to-end encryption for maximum privacy.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Message Reactions</h3>
+                    <p>React to messages with emojis to express yourself without typing.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3>Location Tracking</h3>
+                    <p>View approximate location of your contacts based on their IP address.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-shield-alt"></i>
                     </div>
-                    <h3>Enterprise Security</h3>
-                    <p>Military-grade encryption protects your conversations from unauthorized access.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>User Management</h3>
-                    <p>Easily manage participants with role-based permissions and access controls.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-cloud"></i>
-                    </div>
-                    <h3>Cloud Powered</h3>
-                    <p>Powered by Firebase for reliable, scalable infrastructure with 99.9% uptime.</p>
+                    <h3>Enhanced Security</h3>
+                    <p>Military-grade encryption protects all your conversations and data.</p>
                 </div>
             </div>
         </div>
@@ -1036,8 +1258,53 @@
         </div>
     </div>
 
+    <!-- Location Modal -->
+    <div class="location-modal" id="locationModal">
+        <div class="location-content">
+            <div class="location-header">
+                <h3>User Location</h3>
+                <button class="location-close" id="closeLocationModal">&times;</button>
+            </div>
+            <p>Approximate location based on IP address:</p>
+            
+            <div class="location-details">
+                <div class="location-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <strong>Country:</strong> <span id="locationCountry">United States</span>
+                    </div>
+                </div>
+                
+                <div class="location-info">
+                    <i class="fas fa-city"></i>
+                    <div>
+                        <strong>City:</strong> <span id="locationCity">San Francisco</span>
+                    </div>
+                </div>
+                
+                <div class="location-info">
+                    <i class="fas fa-map"></i>
+                    <div>
+                        <strong>Region:</strong> <span id="locationRegion">California</span>
+                    </div>
+                </div>
+                
+                <div class="location-info">
+                    <i class="fas fa-globe"></i>
+                    <div>
+                        <strong>ISP:</strong> <span id="locationIsp">Comcast Cable</span>
+                    </div>
+                </div>
+                
+                <div class="location-map">
+                    <i class="fas fa-map-marked-alt"></i> Map view would appear here
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Firebase configuration - REPLACE WITH YOUR ACTUAL CONFIG
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDAVJii9CUPUlUV8k0EpruSxri3LkPAjf0",
             authDomain: "firechat-demo-5b5fb.firebaseapp.com",
@@ -1065,21 +1332,34 @@
         const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
-        const onlineUsersList = document.getElementById('onlineUsers');
-        const onlineCount = document.getElementById('onlineCount');
-        const participantCount = document.getElementById('participantCount');
-        const userName = document.getElementById('userName');
-        const userAvatar = document.getElementById('userAvatar');
-        const editMessageModal = document.getElementById('editMessageModal');
-        const editMessageInput = document.getElementById('editMessageInput');
-        const closeEditModal = document.getElementById('closeEditModal');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-        const saveEditBtn = document.getElementById('saveEditBtn');
+        const conversationList = document.getElementById('conversationList');
+        const newChatBtn = document.getElementById('newChatBtn');
+        const chatHeaderName = document.getElementById('chatHeaderName');
+        const chatHeaderAvatar = document.getElementById('chatHeaderAvatar');
+        const chatHeaderStatus = document.getElementById('chatHeaderStatus');
+        const locationBtn = document.getElementById('locationBtn');
+        const locationModal = document.getElementById('locationModal');
+        const closeLocationModal = document.getElementById('closeLocationModal');
+        const locationCountry = document.getElementById('locationCountry');
+        const locationCity = document.getElementById('locationCity');
+        const locationRegion = document.getElementById('locationRegion');
+        const locationIsp = document.getElementById('locationIsp');
         
         // Current user data
         let currentUser = null;
+        let currentConversationId = null;
+        let currentRecipient = null;
         let currentMessageKey = null;
         let currentMessageElement = null;
+        let onlineUsers = {};
+
+        // Sample contacts for demo
+        const demoContacts = [
+            { id: "user2", name: "Alex Johnson", status: "online", city: "New York", country: "USA", isp: "Verizon" },
+            { id: "user3", name: "Maria Garcia", status: "online", city: "Los Angeles", country: "USA", isp: "Spectrum" },
+            { id: "user4", name: "James Wilson", status: "offline", city: "Chicago", country: "USA", isp: "AT&T" },
+            { id: "user5", name: "Sarah Miller", status: "online", city: "Miami", country: "USA", isp: "Comcast" }
+        ];
 
         // Show login modal initially
         loginModal.style.display = 'flex';
@@ -1112,7 +1392,13 @@
                         uid: user.uid,
                         displayName: name,
                         photoURL: null,
-                        isGuest: true
+                        isGuest: true,
+                        location: {
+                            city: "San Francisco",
+                            country: "USA",
+                            region: "California",
+                            isp: "Comcast Cable"
+                        }
                     };
                     
                     // Update profile with display name
@@ -1139,40 +1425,25 @@
             currentUser = null;
         });
         
-        // Close edit message modal
-        closeEditModal.addEventListener('click', () => {
-            editMessageModal.style.display = 'none';
-        });
-        
-        cancelEditBtn.addEventListener('click', () => {
-            editMessageModal.style.display = 'none';
-        });
-        
-        // Save edited message
-        saveEditBtn.addEventListener('click', () => {
-            const newText = editMessageInput.value.trim();
-            if (newText && currentMessageKey) {
-                database.ref('messages/' + currentMessageKey).update({ 
-                    text: newText,
-                    edited: true 
-                })
-                .then(() => {
-                    // Update the UI immediately
-                    if (currentMessageElement) {
-                        const contentEl = currentMessageElement.querySelector('.content');
-                        contentEl.textContent = newText;
-                        
-                        // Add edited indicator
-                        const timeEl = currentMessageElement.querySelector('.time');
-                        timeEl.innerHTML = `${timeEl.textContent} <span class="edited-badge">(edited)</span>`;
-                    }
-                    editMessageModal.style.display = 'none';
-                })
-                .catch(error => {
-                    console.error('Error updating message:', error);
-                    alert('Failed to update message. Please try again.');
-                });
+        // Location button
+        locationBtn.addEventListener('click', () => {
+            if (currentRecipient) {
+                // For demo, we'll use the recipient's location data
+                const recipient = demoContacts.find(contact => contact.id === currentRecipient.id);
+                
+                if (recipient) {
+                    locationCountry.textContent = recipient.country;
+                    locationCity.textContent = recipient.city;
+                    locationRegion.textContent = recipient.region || "N/A";
+                    locationIsp.textContent = recipient.isp;
+                }
+                
+                locationModal.style.display = 'flex';
             }
+        });
+        
+        closeLocationModal.addEventListener('click', () => {
+            locationModal.style.display = 'none';
         });
         
         // Firebase Auth State Listener
@@ -1183,7 +1454,13 @@
                     uid: user.uid,
                     displayName: user.displayName || 'Guest User',
                     photoURL: user.photoURL,
-                    isGuest: user.isAnonymous
+                    isGuest: user.isAnonymous,
+                    location: {
+                        city: "San Francisco",
+                        country: "USA",
+                        region: "California",
+                        isp: "Comcast Cable"
+                    }
                 };
                 
                 // Save to localStorage
@@ -1213,57 +1490,59 @@
             }
             
             // Initialize chat
+            initContacts();
             initChat();
-            initOnlineUsers();
+        }
+        
+        function initContacts() {
+            conversationList.innerHTML = '';
+            
+            // For demo purposes, we'll use sample contacts
+            demoContacts.forEach(contact => {
+                const conversationItem = document.createElement('li');
+                conversationItem.classList.add('chat-item');
+                conversationItem.dataset.userId = contact.id;
+                
+                conversationItem.innerHTML = `
+                    <div class="status" style="background: ${contact.status === 'online' ? '#2ec4b6' : '#94a3b8'};"></div>
+                    <div class="avatar-sm">${contact.name.charAt(0).toUpperCase()}</div>
+                    <div class="chat-item-info">
+                        <h3>${contact.name}</h3>
+                        <p>${contact.status === 'online' ? 'Online now' : 'Offline'}</p>
+                    </div>
+                    <div class="chat-item-time">10:30</div>
+                `;
+                
+                conversationItem.addEventListener('click', () => {
+                    // Remove active class from all items
+                    document.querySelectorAll('.chat-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked item
+                    conversationItem.classList.add('active');
+                    
+                    // Set current recipient
+                    currentRecipient = contact;
+                    
+                    // Update chat header
+                    chatHeaderName.textContent = contact.name;
+                    chatHeaderStatus.textContent = contact.status === 'online' ? 'Online' : 'Offline';
+                    
+                    // Update avatar
+                    chatHeaderAvatar.innerHTML = `<span style="font-size: 1.2rem; font-weight: bold;">${contact.name.charAt(0).toUpperCase()}</span>`;
+                    
+                    // Load messages for this conversation
+                    loadMessages(contact.id);
+                });
+                
+                conversationList.appendChild(conversationItem);
+            });
         }
         
         function initChat() {
-            // Clear chat messages except the system message
-            chatMessages.innerHTML = `
-                <div class="message received">
-                    <div class="sender">System Bot</div>
-                    <div class="content">Welcome to FireChat Pro! This is a secure, professional chat environment.</div>
-                    <div class="time">Just now</div>
-                </div>
-            `;
-            
             // Reference to the messages in database
             const messagesRef = database.ref('messages').limitToLast(50);
-            
-            // Load existing messages
-            messagesRef.on('child_added', snapshot => {
-                const message = snapshot.val();
-                // Only add messages that are not from the system
-                if (message.uid !== "system") {
-                    addMessageToUI(message, snapshot.key);
-                }
-            });
-            
-            // Listen for message changes (for editing)
-            messagesRef.on('child_changed', snapshot => {
-                const message = snapshot.val();
-                const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
-                if (messageEl) {
-                    const contentEl = messageEl.querySelector('.content');
-                    if (contentEl) {
-                        contentEl.textContent = message.text;
-                    }
-                    
-                    // Add edited indicator
-                    const timeEl = messageEl.querySelector('.time');
-                    if (message.edited) {
-                        timeEl.innerHTML = `${timeEl.textContent} <span class="edited-badge">(edited)</span>`;
-                    }
-                }
-            });
-            
-            // Listen for message removal
-            messagesRef.on('child_removed', snapshot => {
-                const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
-                if (messageEl) {
-                    messageEl.remove();
-                }
-            });
             
             // Send message
             sendButton.addEventListener('click', sendMessage);
@@ -1274,9 +1553,63 @@
             });
         }
         
+        function loadMessages(recipientId) {
+            // Clear chat messages
+            chatMessages.innerHTML = '';
+            
+            // For demo, we'll create some sample messages
+            const messages = [
+                {
+                    text: `Hello! I'm interested in FireChat Pro. Can you tell me more about it?`,
+                    name: currentRecipient.name,
+                    timestamp: Date.now() - 3600000,
+                    uid: recipientId,
+                    isGuest: false
+                },
+                {
+                    text: `Sure! FireChat Pro is a secure messaging platform with end-to-end encryption, message reactions, and location features.`,
+                    name: currentUser.displayName,
+                    timestamp: Date.now() - 3500000,
+                    uid: currentUser.uid,
+                    isGuest: currentUser.isGuest
+                },
+                {
+                    text: `That sounds great! How does the location feature work?`,
+                    name: currentRecipient.name,
+                    timestamp: Date.now() - 3400000,
+                    uid: recipientId,
+                    isGuest: false
+                },
+                {
+                    text: `It shows approximate location based on IP address, helping you know where your contacts are messaging from.`,
+                    name: currentUser.displayName,
+                    timestamp: Date.now() - 3300000,
+                    uid: currentUser.uid,
+                    isGuest: currentUser.isGuest,
+                    reactions: { '👍': [recipientId] }
+                },
+                {
+                    text: `Awesome! Can I try it now?`,
+                    name: currentRecipient.name,
+                    timestamp: Date.now() - 3200000,
+                    uid: recipientId,
+                    isGuest: false,
+                    reactions: { '❤️': [currentUser.uid] }
+                }
+            ];
+            
+            // Add messages to UI
+            messages.forEach(message => {
+                addMessageToUI(message);
+            });
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
         function sendMessage() {
             const messageText = messageInput.value.trim();
-            if (messageText) {
+            if (messageText && currentRecipient) {
                 // Create message object
                 const message = {
                     text: messageText,
@@ -1286,36 +1619,27 @@
                     isGuest: currentUser.isGuest
                 };
                 
-                // Push to database
-                database.ref('messages').push(message)
-                    .catch(error => {
-                        console.error('Error sending message:', error);
-                        // Show error to user
-                        const errorMsg = document.createElement('div');
-                        errorMsg.classList.add('message', 'received');
-                        errorMsg.innerHTML = `
-                            <div class="sender">System Bot</div>
-                            <div class="content">Failed to send message: ${error.message}</div>
-                            <div class="time">Just now</div>
-                        `;
-                        chatMessages.appendChild(errorMsg);
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    });
+                // For demo, we'll just add to UI
+                addMessageToUI(message);
+                
+                // In a real app, you would push to Firebase
+                // database.ref('messages').push(message)
                 
                 // Clear input
                 messageInput.value = '';
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         }
         
-        function addMessageToUI(message, key) {
+        function addMessageToUI(message) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
             
             // Check if message is from current user
             const isCurrentUser = message.uid === currentUser.uid;
             messageDiv.classList.add(isCurrentUser ? 'sent' : 'received');
-            messageDiv.dataset.key = key;
-            messageDiv.dataset.timestamp = message.timestamp;
             
             // Format time
             const time = new Date(message.timestamp);
@@ -1323,9 +1647,6 @@
             
             // Add badge for guest users
             const badge = message.isGuest ? '<span class="badge">Guest</span>' : '';
-            
-            // Add edited badge if message has been edited
-            const editedBadge = message.edited ? ' <span class="edited-badge">(edited)</span>' : '';
             
             // Message actions
             let messageActions = '';
@@ -1340,19 +1661,41 @@
                         </button>
                     </div>
                 `;
+            } else {
+                messageActions = `
+                    <div class="message-actions">
+                        <button class="message-action react-message" title="React">
+                            <i class="fas fa-smile"></i>
+                        </button>
+                        <button class="message-action reply-message" title="Reply">
+                            <i class="fas fa-reply"></i>
+                        </button>
+                    </div>
+                `;
+            }
+            
+            // Add reactions if they exist
+            let reactionsHTML = '';
+            if (message.reactions) {
+                reactionsHTML = '<div class="reactions">';
+                for (const [emoji, users] of Object.entries(message.reactions)) {
+                    const isUserReacted = users.includes(currentUser.uid);
+                    reactionsHTML += `<div class="reaction ${isUserReacted ? 'active' : ''}">${emoji} ${users.length}</div>`;
+                }
+                reactionsHTML += '</div>';
             }
             
             messageDiv.innerHTML = `
                 <div class="sender">${message.name} ${badge}</div>
                 <div class="content">${message.text}</div>
+                ${reactionsHTML}
                 <div class="time">
-                    ${timeString}${editedBadge}
+                    ${timeString}
                     ${messageActions}
                 </div>
             `;
             
             chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
             
             // Add event listeners for message actions
             if (isCurrentUser) {
@@ -1361,92 +1704,46 @@
                 
                 editBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    openEditMessageModal(message, key, messageDiv);
+                    // For demo, we won't implement full edit functionality
+                    alert('Edit message functionality would appear here');
                 });
                 
                 deleteBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    deleteMessage(key);
-                });
-            }
-        }
-        
-        function openEditMessageModal(message, key, element) {
-            currentMessageKey = key;
-            currentMessageElement = element;
-            editMessageInput.value = message.text;
-            editMessageModal.style.display = 'flex';
-        }
-        
-        function deleteMessage(key) {
-            if (confirm('Are you sure you want to delete this message for everyone?')) {
-                database.ref('messages/' + key).remove()
-                    .catch(error => {
-                        console.error('Error deleting message:', error);
-                        alert('Failed to delete message. Please try again.');
-                    });
-            }
-        }
-        
-        function initOnlineUsers() {
-            const userStatusRef = database.ref('users');
-            const userRef = database.ref('users/' + currentUser.uid);
-            
-            // Set user status to online
-            userRef.set({
-                name: currentUser.displayName,
-                status: 'online',
-                lastOnline: Date.now(),
-                isGuest: currentUser.isGuest
-            })
-            .catch(error => {
-                console.error('Error setting user status:', error);
-            });
-            
-            // Update status when user disconnects
-            userRef.onDisconnect().update({
-                status: 'offline',
-                lastOnline: Date.now()
-            })
-            .catch(error => {
-                console.error('Error setting onDisconnect:', error);
-            });
-            
-            // Listen for online users
-            userStatusRef.on('value', snapshot => {
-                onlineUsersList.innerHTML = '';
-                let onlineCountValue = 0;
-                
-                // Add system bot
-                const systemBot = document.createElement('li');
-                systemBot.innerHTML = `
-                    <div class="status" style="background: #f72585;"></div>
-                    <div class="avatar-sm">S</div>
-                    <span>System Bot</span>
-                `;
-                onlineUsersList.appendChild(systemBot);
-                
-                // Add real users
-                snapshot.forEach(childSnapshot => {
-                    const user = childSnapshot.val();
-                    if (user.status === 'online' && user.name) {
-                        onlineCountValue++;
-                        
-                        const userItem = document.createElement('li');
-                        userItem.innerHTML = `
-                            <div class="status"></div>
-                            <div class="avatar-sm">${user.name.charAt(0).toUpperCase()}</div>
-                            <span>${user.name} ${user.isGuest ? '<span style="color: var(--accent); font-size: 0.8rem;">(Guest)</span>' : ''}</span>
-                        `;
-                        onlineUsersList.appendChild(userItem);
+                    if (confirm('Are you sure you want to delete this message?')) {
+                        messageDiv.remove();
                     }
                 });
+            } else {
+                const reactBtn = messageDiv.querySelector('.react-message');
+                const replyBtn = messageDiv.querySelector('.reply-message');
                 
-                onlineCount.textContent = `(${onlineCountValue + 1})`;
-                participantCount.textContent = onlineCountValue + 1;
-            }, (error) => {
-                console.error('Error loading online users:', error);
-            });
+                reactBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // For demo, we'll just add a reaction
+                    const reactions = ['❤️', '👍', '😂', '😮', '😢', '👏'];
+                    const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
+                    
+                    // Add to UI
+                    let reactionsContainer = messageDiv.querySelector('.reactions');
+                    if (!reactionsContainer) {
+                        reactionsContainer = document.createElement('div');
+                        reactionsContainer.classList.add('reactions');
+                        messageDiv.querySelector('.content').after(reactionsContainer);
+                    }
+                    
+                    const reactionEl = document.createElement('div');
+                    reactionEl.classList.add('reaction', 'active');
+                    reactionEl.textContent = randomReaction;
+                    reactionsContainer.appendChild(reactionEl);
+                });
+                
+                replyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    messageInput.value = `Replying to ${message.name}: ${message.text} `;
+                    messageInput.focus();
+                });
+            }
         }
         
         // Initialize the app
@@ -1457,19 +1754,16 @@
                 currentUser = JSON.parse(savedUser);
                 startApp();
             }
-            
-            // Add a welcome message after a delay
-            setTimeout(() => {
-                const welcomeMessage = {
-                    text: "FireChat Pro offers enterprise-grade security with real-time messaging. Your conversations are protected with end-to-end encryption.",
-                    name: "System Bot",
-                    timestamp: Date.now(),
-                    uid: "system",
-                    isGuest: false
-                };
-                addMessageToUI(welcomeMessage, "system");
-            }, 1000);
         };
+        
+        // Demo: Simulate user location tracking
+        function trackUserLocation() {
+            // This would normally be done with a geolocation API
+            console.log("Tracking user location based on IP...");
+        }
+        
+        // Call the function to simulate tracking
+        trackUserLocation();
     </script>
 </body>
 </html>
