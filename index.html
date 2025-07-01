@@ -8,7 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -1055,40 +1054,65 @@
             margin-left: auto;
         }
         
-        /* Setup info */
-        .setup-info {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 30px;
-            border: 1px solid var(--border-color);
-            max-width: 800px;
-            margin: 20px auto 0;
-        }
-        
-        .setup-info h3 {
-            color: var(--accent);
-            margin-bottom: 15px;
-            display: flex;
+        /* Edit message modal */
+        .edit-message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
             align-items: center;
+        }
+        
+        .edit-message-content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        
+        .edit-message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .edit-message-header h3 {
+            font-size: 1.3rem;
+        }
+        
+        .edit-message-close {
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .edit-message-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            min-height: 120px;
+        }
+        
+        .edit-message-actions {
+            display: flex;
+            justify-content: flex-end;
             gap: 10px;
-        }
-        
-        .setup-info ul {
-            padding-left: 20px;
-            margin: 15px 0;
-        }
-        
-        .setup-info li {
-            margin-bottom: 10px;
-            line-height: 1.6;
-        }
-        
-        .setup-info code {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
         }
     </style>
 </head>
@@ -1130,19 +1154,6 @@
             
             <input type="text" id="displayName" placeholder="Enter your display name">
             <button class="btn btn-outline" id="guestLogin"><i class="fas fa-user"></i> Continue as Guest</button>
-            
-            <div class="setup-info">
-                <h3><i class="fas fa-info-circle"></i> Setup Information</h3>
-                <p>This chat application requires a free Firebase account:</p>
-                <ul>
-                    <li>Create a Firebase project at <a href="https://firebase.google.com/" target="_blank" style="color: var(--accent);">firebase.google.com</a></li>
-                    <li>Add a web app to your project</li>
-                    <li>Copy your Firebase config and replace the values in the code</li>
-                    <li>Enable <strong>Google Authentication</strong> and <strong>Anonymous Authentication</strong></li>
-                    <li>Enable <strong>Firebase Realtime Database</strong> and <strong>Storage</strong></li>
-                </ul>
-                <p>No credit card required - free tier is sufficient for most applications</p>
-            </div>
         </div>
     </div>
     
@@ -1248,11 +1259,7 @@
                 </div>
                 
                 <div class="chat-messages" id="chatMessages">
-                    <div class="message received">
-                        <div class="sender">System Bot</div>
-                        <div class="content">Welcome to FireChat Pro! This is a secure, professional chat environment.</div>
-                        <div class="time">Just now</div>
-                    </div>
+                    <!-- Messages will appear here -->
                 </div>
                 
                 <div class="message-input">
@@ -1338,20 +1345,19 @@
     <script>
         // Firebase configuration - REPLACE WITH YOUR ACTUAL CONFIG
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDAVJii9CUPUlUV8k0EpruSxri3LkPAjf0",
+            authDomain: "firechat-demo-5b5fb.firebaseapp.com",
+            databaseURL: "https://firechat-demo-5b5fb-default-rtdb.firebaseio.com",
+            projectId: "firechat-demo-5b5fb",
+            storageBucket: "firechat-demo-5b5fb.firebasestorage.app",
+            messagingSenderId: "143043689653",
+            appId: "1:143043689653:web:6a2bcb43cb914a65e192fc"
         };
         
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
-        const storage = firebase.storage();
         
         // DOM Elements
         const loginModal = document.getElementById('loginModal');
@@ -1391,8 +1397,6 @@
         
         // Current user data
         let currentUser = null;
-        let currentMessageKey = null;
-        let currentMessageElement = null;
         let unreadMessages = 0;
         let notificationEnabled = true;
         let soundEnabled = true;
@@ -1528,13 +1532,6 @@
                 auth.currentUser.updateProfile({
                     displayName: newName
                 }).then(() => {
-                    // Update user in database
-                    if (currentUserRef) {
-                        currentUserRef.update({
-                            name: newName
-                        });
-                    }
-                    
                     // Show success
                     showNotification("Profile Updated", "Your profile has been updated successfully");
                 }).catch(error => {
@@ -1554,59 +1551,6 @@
             }
             
             profileModal.style.display = 'none';
-        });
-        
-        // Handle avatar upload
-        avatarUpload.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            // Show loading
-            avatarPreview.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            
-            // Upload file to Firebase storage
-            const storageRef = storage.ref(`profile_photos/${currentUser.uid}`);
-            const uploadTask = storageRef.put(file);
-            
-            uploadTask.on('state_changed', 
-                (snapshot) => {
-                    // Progress monitoring
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log('Upload is ' + progress + '% done');
-                }, 
-                (error) => {
-                    console.error("Upload error:", error);
-                    showNotification("Upload Failed", "Could not upload profile photo.");
-                    avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
-                }, 
-                () => {
-                    // Upload completed successfully
-                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                        currentUser.photoURL = downloadURL;
-                        
-                        // Update UI
-                        avatarPreview.innerHTML = `<img src="${downloadURL}" alt="Profile">`;
-                        userAvatar.innerHTML = `<img src="${downloadURL}" alt="Profile">`;
-                        
-                        // Update Firebase profile
-                        auth.currentUser.updateProfile({
-                            photoURL: downloadURL
-                        }).then(() => {
-                            // Update user in database
-                            if (currentUserRef) {
-                                currentUserRef.update({
-                                    photoURL: downloadURL
-                                });
-                            }
-                            
-                            showNotification("Photo Updated", "Your profile photo has been updated");
-                        }).catch(error => {
-                            console.error("Error updating photo URL:", error);
-                            showNotification("Update Failed", "Could not update profile photo.");
-                        });
-                    });
-                }
-            );
         });
         
         // Close notification toast
@@ -1701,14 +1645,18 @@
         }
         
         function initChat() {
-            // Clear chat messages except the system message
-            chatMessages.innerHTML = `
-                <div class="message received">
-                    <div class="sender">System Bot</div>
-                    <div class="content">Welcome to FireChat Pro! This is a secure, professional chat environment.</div>
-                    <div class="time">Just now</div>
-                </div>
-            `;
+            // Clear chat messages
+            chatMessages.innerHTML = '';
+            
+            // Add welcome message
+            const welcomeMessage = {
+                text: "Welcome to FireChat Pro! This is a secure, professional chat environment.",
+                name: "System Bot",
+                timestamp: Date.now(),
+                uid: "system",
+                isGuest: false
+            };
+            addMessageToUI(welcomeMessage, "system_welcome");
             
             // Reference to the messages in database
             const messagesRef = database.ref('messages').limitToLast(50);
@@ -1861,6 +1809,10 @@
             }
         }
         
+        // Variables for editing messages (scoped to prevent conflicts)
+        let currentMessageKey = null;
+        let currentMessageElement = null;
+        
         function openEditMessageModal(message, key, element) {
             currentMessageKey = key;
             currentMessageElement = element;
@@ -1879,16 +1831,15 @@
         }
         
         function initOnlineUsers() {
-            userStatusRef = database.ref('users');
-            currentUserRef = database.ref('users/' + currentUser.uid);
+            const userStatusRef = database.ref('users');
+            const currentUserRef = database.ref('users/' + currentUser.uid);
             
             // Set user status to online
             currentUserRef.set({
                 name: currentUser.displayName,
                 status: 'online',
                 lastOnline: Date.now(),
-                isGuest: currentUser.isGuest,
-                photoURL: currentUser.photoURL
+                isGuest: currentUser.isGuest
             })
             .catch(error => {
                 console.error('Error setting user status:', error);
@@ -1922,15 +1873,10 @@
                     const user = childSnapshot.val();
                     if (user.status === 'online' && user.name) {
                         onlineCountValue++;
-                        
                         const userItem = document.createElement('li');
-                        const initial = user.name.charAt(0).toUpperCase();
-                        
                         userItem.innerHTML = `
                             <div class="status"></div>
-                            <div class="avatar-sm">
-                                ${user.photoURL ? `<img src="${user.photoURL}" alt="${user.name}">` : initial}
-                            </div>
+                            <div class="avatar-sm">${user.name.charAt(0).toUpperCase()}</div>
                             <span>${user.name} ${user.isGuest ? '<span style="color: var(--accent); font-size: 0.8rem;">(Guest)</span>' : ''}</span>
                         `;
                         onlineUsersList.appendChild(userItem);
@@ -1952,17 +1898,6 @@
                 currentUser = JSON.parse(savedUser);
                 startApp();
             }
-            
-            setTimeout(() => {
-                const welcomeMessage = {
-                    text: "FireChat Pro offers enterprise-grade security with real-time messaging. Your conversations are protected with end-to-end encryption.",
-                    name: "System Bot",
-                    timestamp: Date.now(),
-                    uid: "system",
-                    isGuest: false
-                };
-                addMessageToUI(welcomeMessage, "system");
-            }, 1000);
         };
     </script>
 </body>
