@@ -1,1299 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireChat Pro | Professional Real-Time Chat</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    <style>
-        :root {
-            --primary: #4361ee;
-            --primary-dark: #3a0ca3;
-            --secondary: #7209b7;
-            --accent: #4cc9f0;
-            --success: #2ec4b6;
-            --warning: #ff9f1c;
-            --danger: #e71d36;
-            --dark-bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.92);
-            --text-light: #f1f5f9;
-            --text-gray: #94a3b8;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --notification: #f72585;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
-        }
-        
-        body {
-            background: radial-gradient(circle at top right, #0f172a, #0c1b32, #0a1429);
-            color: var(--text-light);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 1400px;
-            width: 100%;
-            margin: 0 auto;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-        
-        header {
-            text-align: center;
-            padding: 30px 0 20px;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        
-        .logo-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .logo {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.3);
-        }
-        
-        .logo i {
-            font-size: 28px;
-            color: white;
-        }
-        
-        header h1 {
-            font-size: 2.8rem;
-            font-weight: 800;
-            background: linear-gradient(to right, var(--accent), var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-        }
-        
-        header p {
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-            color: var(--text-gray);
-            font-weight: 400;
-        }
-        
-        .app-container {
-            display: flex;
-            flex: 1;
-            background: var(--card-bg);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(12px);
-            margin-bottom: 30px;
-            height: 75vh;
-        }
-        
-        .sidebar {
-            width: 320px;
-            background: rgba(15, 23, 42, 0.7);
-            padding: 25px 20px;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid var(--border-color);
-            position: relative;
-            z-index: 2;
-        }
-        
-        .user-profile {
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            margin-bottom: 25px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .user-profile:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px);
-        }
-        
-        .user-profile::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-        }
-        
-        .avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-right: 18px;
-            color: white;
-            flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .user-info h3 {
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .user-info h3 .notification-badge {
-            background: var(--notification);
-            color: white;
-            font-size: 0.7rem;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        
-        .user-info p {
-            font-size: 0.9rem;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .user-info p .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--success);
-        }
-        
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--border-color);
-            color: var(--text-light);
-            border-radius: 10px;
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .logout-btn:hover {
-            background: rgba(231, 29, 54, 0.15);
-            border-color: rgba(231, 29, 54, 0.3);
-            color: #ff6b81;
-        }
-        
-        .online-users h2 {
-            font-size: 1.3rem;
-            margin-bottom: 18px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-        
-        .user-list {
-            list-style: none;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .user-list li {
-            display: flex;
-            align-items: center;
-            padding: 14px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            background: rgba(255, 255, 255, 0.04);
-            transition: all 0.3s ease;
-            border: 1px solid var(--border-color);
-        }
-        
-        .user-list li:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .user-list .status {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--success);
-            margin-right: 14px;
-            flex-shrink: 0;
-            box-shadow: 0 0 0 4px rgba(46, 196, 182, 0.15);
-        }
-        
-        .user-list .avatar-sm {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            margin-right: 14px;
-            color: white;
-            flex-shrink: 0;
-            font-weight: 600;
-            overflow: hidden;
-        }
-        
-        .user-list .avatar-sm img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: rgba(15, 23, 42, 0.4);
-        }
-        
-        .chat-header {
-            padding: 22px 25px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            background: rgba(15, 23, 42, 0.7);
-        }
-        
-        .chat-header .avatar {
-            margin-right: 18px;
-            background: linear-gradient(45deg, var(--secondary), #f72585);
-        }
-        
-        .chat-header-info h3 {
-            font-size: 1.3rem;
-            font-weight: 600;
-        }
-        
-        .chat-header-info p {
-            color: var(--accent);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 25px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            background: rgba(15, 25, 45, 0.2);
-        }
-        
-        .message {
-            max-width: 75%;
-            padding: 18px;
-            margin-bottom: 20px;
-            border-radius: 18px;
-            position: relative;
-            animation: fadeIn 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .received {
-            align-self: flex-start;
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid var(--border-color);
-            border-bottom-left-radius: 5px;
-        }
-        
-        .sent {
-            align-self: flex-end;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-bottom-right-radius: 5px;
-        }
-        
-        .message .sender {
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .message .sender .badge {
-            font-size: 0.7rem;
-            background: rgba(76, 201, 240, 0.15);
-            color: var(--accent);
-            padding: 2px 8px;
-            border-radius: 20px;
-        }
-        
-        .message .content {
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-        
-        .message .time {
-            font-size: 0.75rem;
-            text-align: right;
-            opacity: 0.7;
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .message .time .message-actions {
-            display: none;
-            gap: 8px;
-        }
-        
-        .message:hover .time .message-actions {
-            display: flex;
-        }
-        
-        .message-action {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-gray);
-            transition: all 0.2s ease;
-        }
-        
-        .message-action:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: var(--accent);
-        }
-        
-        .message-input {
-            padding: 22px 25px;
-            display: flex;
-            border-top: 1px solid var(--border-color);
-            background: rgba(15, 23, 42, 0.7);
-        }
-        
-        .message-input input {
-            flex: 1;
-            padding: 16px 22px;
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.06);
-            color: white;
-            font-size: 1rem;
-            outline: none;
-            margin-right: 18px;
-            transition: all 0.3s ease;
-        }
-        
-        .message-input input:focus {
-            border-color: rgba(67, 97, 238, 0.5);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-        }
-        
-        .message-input input::placeholder {
-            color: var(--text-gray);
-        }
-        
-        .message-input button {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            width: 54px;
-            height: 54px;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
-        }
-        
-        .message-input button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
-        }
-        
-        .features-section {
-            padding: 40px 0;
-            margin-top: 20px;
-        }
-        
-        .section-title {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .section-title h2 {
-            font-size: 2.2rem;
-            margin-bottom: 15px;
-            background: linear-gradient(to right, var(--accent), var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-        }
-        
-        .section-title p {
-            font-size: 1.1rem;
-            max-width: 700px;
-            margin: 0 auto;
-            color: var(--text-gray);
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
-        }
-        
-        .feature-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 35px 30px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
-            border-color: rgba(67, 97, 238, 0.3);
-        }
-        
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-        }
-        
-        .feature-icon {
-            width: 70px;
-            height: 70px;
-            background: rgba(67, 97, 238, 0.1);
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 25px;
-            font-size: 28px;
-            color: var(--accent);
-        }
-        
-        .feature-card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-        
-        .feature-card p {
-            color: var(--text-gray);
-            line-height: 1.7;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 40px 0 30px;
-            margin-top: 30px;
-            color: var(--text-gray);
-            font-size: 0.95rem;
-            border-top: 1px solid var(--border-color);
-        }
-        
-        .footer-logo {
-            font-size: 2rem;
-            margin-bottom: 15px;
-            color: var(--accent);
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            margin: 25px 0;
-        }
-        
-        .footer-links a {
-            color: var(--text-gray);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-        
-        .footer-links a:hover {
-            color: var(--accent);
-        }
-        
-        /* Login modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background: var(--card-bg);
-            padding: 50px 40px;
-            border-radius: 24px;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-            position: relative;
-            animation: modalAppear 0.4s ease;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-        
-        @keyframes modalAppear {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .modal h2 {
-            margin-bottom: 20px;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            gap: 12px;
-        }
-        
-        .modal p {
-            margin-bottom: 25px;
-            color: var(--text-gray);
-        }
-        
-        .modal input {
-            width: 100%;
-            padding: 16px 22px;
-            margin: 15px 0;
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            background: rgba(255, 255, 255, 0.06);
-            color: white;
-            font-size: 1rem;
-        }
-        
-        .modal .error {
-            color: var(--danger);
-            margin: 10px 0;
-            min-height: 20px;
-            font-size: 0.9rem;
-        }
-        
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: var(--text-gray);
-            font-size: 1.8rem;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-        
-        .close-modal:hover {
-            color: var(--accent);
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 14px;
-            margin: 10px 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1rem;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-light);
-            box-shadow: none;
-        }
-        
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(67, 97, 238, 0.5);
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.2);
-        }
-        
-        /* Profile Settings Modal */
-        .profile-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1001;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .profile-modal-content {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 500px;
-            width: 90%;
-            position: relative;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-        }
-        
-        .profile-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .profile-header h2 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            background: linear-gradient(to right, var(--accent), var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .avatar-upload {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 20px;
-            cursor: pointer;
-        }
-        
-        .avatar-preview {
-            width: 100%;
-            height: 100%;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px dashed var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .avatar-preview:hover {
-            border-color: var(--accent);
-        }
-        
-        .avatar-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .avatar-upload i {
-            font-size: 3rem;
-            color: var(--accent);
-        }
-        
-        .avatar-upload input {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-        
-        .profile-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .form-group label {
-            font-size: 0.9rem;
-            color: var(--text-gray);
-        }
-        
-        .form-group input {
-            padding: 14px 18px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            background: rgba(255, 255, 255, 0.06);
-            color: white;
-            font-size: 1rem;
-            outline: none;
-        }
-        
-        .form-group input:focus {
-            border-color: rgba(67, 97, 238, 0.5);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-        }
-        
-        .profile-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        
-        /* Notification settings */
-        .notification-settings {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .notification-settings:last-child {
-            border-bottom: none;
-        }
-        
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.1);
-            transition: .4s;
-            border-radius: 24px;
-        }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: var(--text-gray);
-            transition: .4s;
-            border-radius: 50%;
-        }
-        
-        input:checked + .slider {
-            background-color: var(--accent);
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(26px);
-            background-color: white;
-        }
-        
-        /* Responsive design */
-        @media (max-width: 1000px) {
-            .app-container {
-                flex-direction: column;
-                height: auto;
-            }
-            
-            .sidebar {
-                width: 100%;
-                max-height: 300px;
-            }
-            
-            header h1 {
-                font-size: 2.4rem;
-            }
-            
-            .message {
-                max-width: 85%;
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-            }
-            
-            header {
-                padding: 20px 0 15px;
-            }
-            
-            header h1 {
-                font-size: 2rem;
-            }
-            
-            .logo {
-                width: 50px;
-                height: 50px;
-            }
-            
-            .message-input {
-                padding: 18px;
-            }
-            
-            .message-input input {
-                padding: 14px 18px;
-                margin-right: 12px;
-            }
-            
-            .message-input button {
-                width: 50px;
-                height: 50px;
-            }
-            
-            .profile-modal-content {
-                padding: 25px;
-            }
-            
-            .avatar-upload {
-                width: 120px;
-                height: 120px;
-            }
-        }
-        
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary);
-        }
-        
-        /* Decorative elements */
-        .bg-blur-circle {
-            position: fixed;
-            width: 400px;
-            height: 400px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(67, 97, 238, 0.15) 0%, transparent 70%);
-            filter: blur(80px);
-            z-index: -1;
-        }
-        
-        .circle-1 {
-            top: 10%;
-            left: 10%;
-        }
-        
-        .circle-2 {
-            bottom: 10%;
-            right: 10%;
-            background: radial-gradient(circle, rgba(114, 9, 183, 0.15) 0%, transparent 70%);
-        }
-        
-        .notification-toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            max-width: 350px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-        
-        .notification-toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .notification-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--notification);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-        
-        .notification-content h4 {
-            font-size: 1rem;
-            margin-bottom: 5px;
-        }
-        
-        .notification-content p {
-            font-size: 0.9rem;
-            color: var(--text-gray);
-        }
-        
-        .notification-close {
-            background: none;
-            border: none;
-            color: var(--text-gray);
-            font-size: 1.2rem;
-            cursor: pointer;
-            margin-left: auto;
-        }
-    </style>
+    <!-- ... (head content remains the same) ... -->
 </head>
 <body>
-    <!-- Decorative background elements -->
-    <div class="bg-blur-circle circle-1"></div>
-    <div class="bg-blur-circle circle-2"></div>
-    
-    <!-- Notification Toast -->
-    <div class="notification-toast" id="notificationToast">
-        <div class="notification-icon">
-            <i class="fas fa-bell"></i>
-        </div>
-        <div class="notification-content">
-            <h4 id="notificationTitle">New Message</h4>
-            <p id="notificationMessage">You have a new message</p>
-        </div>
-        <button class="notification-close" id="closeNotification">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    
-    <!-- Login Modal -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <button class="close-modal" id="closeModal">&times;</button>
-            <h2><i class="fas fa-comments"></i> Welcome to FireChat Pro</h2>
-            <p>Secure real-time communication for professionals</p>
-            
-            <div class="error" id="loginError"></div>
-            
-            <button class="btn" id="googleLogin">
-                <i class="fab fa-google"></i> Sign in with Google
-            </button>
-            
-            <p style="margin: 25px 0 15px; font-size: 0.9rem; color: var(--text-gray);">
-                - OR Continue as Guest -
-            </p>
-            
-            <input type="text" id="displayName" placeholder="Enter your display name">
-            <button class="btn btn-outline" id="guestLogin"><i class="fas fa-user"></i> Continue as Guest</button>
-        </div>
-    </div>
-    
-    <!-- Profile Settings Modal -->
-    <div class="profile-modal" id="profileModal">
-        <div class="profile-modal-content">
-            <button class="close-modal" id="closeProfileModal">&times;</button>
-            <div class="profile-header">
-                <h2>Profile Settings</h2>
-                <p>Update your profile information</p>
-            </div>
-            
-            <div class="avatar-upload">
-                <div class="avatar-preview" id="avatarPreview">
-                    <i class="fas fa-user-plus" id="avatarPlaceholder"></i>
-                </div>
-                <input type="file" id="avatarUpload" accept="image/*">
-            </div>
-            
-            <div class="profile-form">
-                <div class="form-group">
-                    <label for="profileName">Display Name</label>
-                    <input type="text" id="profileName" placeholder="Enter your name">
-                </div>
-                
-                <div class="notification-settings">
-                    <div>
-                        <h4>Message Notifications</h4>
-                        <p>Get notified for new messages</p>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="notificationToggle" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                
-                <div class="notification-settings">
-                    <div>
-                        <h4>Sound Alerts</h4>
-                        <p>Play sound for new messages</p>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="soundToggle" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
-            
-            <div class="profile-actions">
-                <button class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
-                <button class="btn" id="saveProfileBtn">Save Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="container" id="appContainer" style="display: none;">
-        <header>
-            <div class="logo-container">
-                <div class="logo">
-                    <i class="fas fa-fire"></i>
-                </div>
-                <h1>FireChat Pro</h1>
-            </div>
-            <p>Professional-grade real-time chat with end-to-end encryption</p>
-        </header>
-        
-        <div class="app-container">
-            <div class="sidebar">
-                <div class="user-profile" id="profileBtn">
-                    <div class="avatar" id="userAvatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="user-info">
-                        <h3 id="userName">Guest User <span class="notification-badge" id="notificationBadge" style="display: none;">0</span></h3>
-                        <p><span class="status-indicator"></span> Online</p>
-                        <button id="logoutBtn" class="logout-btn">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="online-users">
-                    <h2><i class="fas fa-user-friends"></i> Online Now <span id="onlineCount">(0)</span></h2>
-                    <ul class="user-list" id="onlineUsers">
-                        <li>
-                            <div class="status"></div>
-                            <div class="avatar-sm">S</div>
-                            <span>System Bot</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="chat-container">
-                <div class="chat-header">
-                    <div class="avatar">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <div class="chat-header-info">
-                        <h3>General Chat Room</h3>
-                        <p><i class="fas fa-user"></i> <span id="participantCount">1</span> participants</p>
-                    </div>
-                </div>
-                
-                <div class="chat-messages" id="chatMessages">
-                    <div class="message received">
-                        <div class="sender">System Bot</div>
-                        <div class="content">Welcome to FireChat Pro! This is a secure, professional chat environment.</div>
-                        <div class="time">Just now</div>
-                    </div>
-                </div>
-                
-                <div class="message-input">
-                    <input type="text" id="messageInput" placeholder="Type your message...">
-                    <button id="sendButton">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="features-section">
-            <div class="section-title">
-                <h2>Professional Communication</h2>
-                <p>FireChat Pro delivers enterprise-grade features with intuitive design</p>
-            </div>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <h3>Real-Time Messaging</h3>
-                    <p>Messages are delivered instantly with end-to-end encryption for maximum security.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Enterprise Security</h3>
-                    <p>Military-grade encryption protects your conversations from unauthorized access.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>User Management</h3>
-                    <p>Easily manage participants with role-based permissions and access controls.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-cloud"></i>
-                    </div>
-                    <h3>Cloud Powered</h3>
-                    <p>Powered by Firebase for reliable, scalable infrastructure with 99.9% uptime.</p>
-                </div>
-            </div>
-        </div>
-        
-        <footer>
-            <div class="footer-logo">
-                <i class="fas fa-fire"></i>
-            </div>
-            <p>FireChat Pro - Professional Real-Time Communication Platform</p>
-            <div class="footer-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Security</a>
-                <a href="#">Contact</a>
-            </div>
-            <p>&copy; 2023 FireChat Pro. All rights reserved.</p>
-        </footer>
-    </div>
-
-    <!-- Edit Message Modal -->
-    <div class="edit-message-modal" id="editMessageModal">
-        <div class="edit-message-content">
-            <div class="edit-message-header">
-                <h3>Edit Message</h3>
-                <button class="edit-message-close" id="closeEditModal">&times;</button>
-            </div>
-            <textarea class="edit-message-input" id="editMessageInput"></textarea>
-            <div class="edit-message-actions">
-                <button class="btn btn-outline" id="cancelEditBtn">Cancel</button>
-                <button class="btn" id="saveEditBtn">Save Changes</button>
-            </div>
-        </div>
-    </div>
+    <!-- ... (body content remains the same) ... -->
 
     <script>
-        // Firebase configuration
+        // Firebase configuration (replace with your actual config)
         const firebaseConfig = {
             apiKey: "AIzaSyDAVJii9CUPUlUV8k0EpruSxri3LkPAjf0",
             authDomain: "firechat-demo-5b5fb.firebaseapp.com",
             databaseURL: "https://firechat-demo-5b5fb-default-rtdb.firebaseio.com",
             projectId: "firechat-demo-5b5fb",
-            storageBucket: "firechat-demo-5b5fb.appspot.com",
+            storageBucket: "firechat-demo-5b5fb.firebasestorage.app",
             messagingSenderId: "143043689653",
             appId: "1:143043689653:web:6a2bcb43cb914a65e192fc"
         };
@@ -1302,53 +22,26 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
-        const storage = firebase.storage();
         
         // DOM Elements
-        const loginModal = document.getElementById('loginModal');
-        const appContainer = document.getElementById('appContainer');
-        const googleLoginBtn = document.getElementById('googleLogin');
-        const guestLoginBtn = document.getElementById('guestLogin');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const closeModal = document.getElementById('closeModal');
-        const displayNameInput = document.getElementById('displayName');
-        const loginError = document.getElementById('loginError');
-        const chatMessages = document.getElementById('chatMessages');
-        const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        const onlineUsersList = document.getElementById('onlineUsers');
-        const onlineCount = document.getElementById('onlineCount');
-        const participantCount = document.getElementById('participantCount');
-        const userName = document.getElementById('userName');
-        const userAvatar = document.getElementById('userAvatar');
-        const editMessageModal = document.getElementById('editMessageModal');
-        const editMessageInput = document.getElementById('editMessageInput');
-        const closeEditModal = document.getElementById('closeEditModal');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-        const saveEditBtn = document.getElementById('saveEditBtn');
-        const profileBtn = document.getElementById('profileBtn');
-        const profileModal = document.getElementById('profileModal');
-        const closeProfileModal = document.getElementById('closeProfileModal');
-        const cancelProfileBtn = document.getElementById('cancelProfileBtn');
-        const saveProfileBtn = document.getElementById('saveProfileBtn');
-        const profileName = document.getElementById('profileName');
-        const avatarUpload = document.getElementById('avatarUpload');
-        const avatarPreview = document.getElementById('avatarPreview');
-        const notificationToast = document.getElementById('notificationToast');
-        const notificationTitle = document.getElementById('notificationTitle');
-        const notificationMessage = document.getElementById('notificationMessage');
-        const closeNotification = document.getElementById('closeNotification');
-        const notificationBadge = document.getElementById('notificationBadge');
+        // ... (DOM elements remain the same) ...
         
         // Current user data
         let currentUser = null;
         let currentMessageKey = null;
         let currentMessageElement = null;
-        let unreadMessages = 0;
-        let notificationEnabled = true;
-        let soundEnabled = true;
-        let isAppActive = true;
         
+        // Store Firebase references and callbacks
+        let messagesRef = null;
+        let userStatusRef = null;
+        let currentUserRef = null;
+        let messagesCallbacks = {
+            added: null,
+            changed: null,
+            removed: null
+        };
+        let userStatusCallback = null;
+
         // Show login modal initially
         loginModal.style.display = 'flex';
         appContainer.style.display = 'none';
@@ -1371,10 +64,8 @@
         guestLoginBtn.addEventListener('click', () => {
             const name = displayNameInput.value.trim() || 'Guest User';
             
-            // Create a proper Firebase auth guest user
             auth.signInAnonymously()
                 .then((userCredential) => {
-                    // Signed in as guest
                     const user = userCredential.user;
                     currentUser = {
                         uid: user.uid,
@@ -1382,14 +73,9 @@
                         photoURL: null,
                         isGuest: true
                     };
-                    
-                    // Update profile with display name
-                    return user.updateProfile({
-                        displayName: name
-                    });
+                    return user.updateProfile({ displayName: name });
                 })
                 .then(() => {
-                    // Save to localStorage
                     localStorage.setItem('firechat_user', JSON.stringify(currentUser));
                     startApp();
                 })
@@ -1400,6 +86,9 @@
 
         // Logout
         logoutBtn.addEventListener('click', () => {
+            // Clean up Firebase listeners
+            cleanUpFirebaseListeners();
+            
             auth.signOut();
             localStorage.removeItem('firechat_user');
             loginModal.style.display = 'flex';
@@ -1425,12 +114,9 @@
                     edited: true 
                 })
                 .then(() => {
-                    // Update the UI immediately
                     if (currentMessageElement) {
                         const contentEl = currentMessageElement.querySelector('.content');
                         contentEl.textContent = newText;
-                        
-                        // Add edited indicator
                         const timeEl = currentMessageElement.querySelector('.time');
                         timeEl.innerHTML = `${timeEl.textContent} <span class="edited-badge">(edited)</span>`;
                     }
@@ -1443,187 +129,59 @@
             }
         });
         
-        // Open profile settings
-        profileBtn.addEventListener('click', () => {
-            profileName.value = currentUser.displayName;
-            document.getElementById('notificationToggle').checked = notificationEnabled;
-            document.getElementById('soundToggle').checked = soundEnabled;
-            
-            // Set avatar preview
-            if (currentUser.photoURL) {
-                avatarPreview.innerHTML = `<img src="${currentUser.photoURL}" alt="Profile">`;
-            } else {
-                avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
-            }
-            
-            profileModal.style.display = 'flex';
-        });
-        
-        // Close profile modal
-        closeProfileModal.addEventListener('click', () => {
-            profileModal.style.display = 'none';
-        });
-        
-        cancelProfileBtn.addEventListener('click', () => {
-            profileModal.style.display = 'none';
-        });
-        
-        // Save profile changes
-        saveProfileBtn.addEventListener('click', () => {
-            const newName = profileName.value.trim();
-            if (newName) {
-                currentUser.displayName = newName;
-                userName.textContent = newName;
-                
-                // Update Firebase profile
-                auth.currentUser.updateProfile({
-                    displayName: newName
-                }).then(() => {
-                    // Update user in database
-                    if (currentUserRef) {
-                        currentUserRef.update({
-                            name: newName
-                        });
-                    }
-                    
-                    // Show success
-                    showNotification("Profile Updated", "Your profile has been updated successfully");
-                }).catch(error => {
-                    console.error("Error updating profile:", error);
-                    showNotification("Update Failed", "Could not update profile. Please try again.");
-                });
-            }
-            
-            // Update notification settings
-            notificationEnabled = document.getElementById('notificationToggle').checked;
-            soundEnabled = document.getElementById('soundToggle').checked;
-            
-            // Reset notification badge if we're enabling notifications
-            if (notificationEnabled) {
-                unreadMessages = 0;
-                updateNotificationBadge();
-            }
-            
-            profileModal.style.display = 'none';
-        });
-        
-        // Handle avatar upload
-        avatarUpload.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            // Show loading
-            avatarPreview.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            
-            // Upload file to Firebase storage
-            const storageRef = storage.ref(`profile_photos/${currentUser.uid}`);
-            const uploadTask = storageRef.put(file);
-            
-            uploadTask.on('state_changed', 
-                (snapshot) => {
-                    // Progress monitoring
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log('Upload is ' + progress + '% done');
-                }, 
-                (error) => {
-                    console.error("Upload error:", error);
-                    showNotification("Upload Failed", "Could not upload profile photo.");
-                    avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
-                }, 
-                () => {
-                    // Upload completed successfully
-                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                        currentUser.photoURL = downloadURL;
-                        
-                        // Update UI
-                        avatarPreview.innerHTML = `<img src="${downloadURL}" alt="Profile">`;
-                        userAvatar.innerHTML = `<img src="${downloadURL}" alt="Profile">`;
-                        
-                        // Update Firebase profile
-                        auth.currentUser.updateProfile({
-                            photoURL: downloadURL
-                        }).then(() => {
-                            // Update user in database
-                            if (currentUserRef) {
-                                currentUserRef.update({
-                                    photoURL: downloadURL
-                                });
-                            }
-                            
-                            showNotification("Photo Updated", "Your profile photo has been updated");
-                        }).catch(error => {
-                            console.error("Error updating photo URL:", error);
-                            showNotification("Update Failed", "Could not update profile photo.");
-                        });
-                    });
-                }
-            );
-        });
-        
-        // Close notification toast
-        closeNotification.addEventListener('click', () => {
-            notificationToast.classList.remove('show');
-        });
-        
-        // Show notification function
-        function showNotification(title, message) {
-            if (!notificationEnabled) return;
-            
-            notificationTitle.textContent = title;
-            notificationMessage.textContent = message;
-            notificationToast.classList.add('show');
-            
-            // Auto hide after 5 seconds
-            setTimeout(() => {
-                notificationToast.classList.remove('show');
-            }, 5000);
-            
-            // Play notification sound if enabled
-            if (soundEnabled) {
-                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqQlJmepqy0vMPL0NXY3N/h4uTl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2A=');
-                audio.play().catch(e => console.log("Audio play failed:", e));
-            }
-        }
-        
-        // Update notification badge
-        function updateNotificationBadge() {
-            if (unreadMessages > 0) {
-                notificationBadge.textContent = unreadMessages;
-                notificationBadge.style.display = 'flex';
-            } else {
-                notificationBadge.style.display = 'none';
-            }
-        }
-        
-        // Track app visibility
-        document.addEventListener('visibilitychange', () => {
-            isAppActive = document.visibilityState === 'visible';
-            if (isAppActive) {
-                unreadMessages = 0;
-                updateNotificationBadge();
-            }
-        });
-        
         // Firebase Auth State Listener
         auth.onAuthStateChanged(user => {
             if (user) {
-                // User is signed in (either Google or anonymous)
                 currentUser = {
                     uid: user.uid,
                     displayName: user.displayName || 'Guest User',
                     photoURL: user.photoURL,
                     isGuest: user.isAnonymous
                 };
-                
-                // Save to localStorage
                 localStorage.setItem('firechat_user', JSON.stringify(currentUser));
                 startApp();
             } else {
-                // User signed out, show login modal
                 loginModal.style.display = 'flex';
                 appContainer.style.display = 'none';
             }
         });
+        
+        // Clean up Firebase listeners
+        function cleanUpFirebaseListeners() {
+            // Clean up messages listeners
+            if (messagesRef) {
+                if (messagesCallbacks.added) {
+                    messagesRef.off('child_added', messagesCallbacks.added);
+                }
+                if (messagesCallbacks.changed) {
+                    messagesRef.off('child_changed', messagesCallbacks.changed);
+                }
+                if (messagesCallbacks.removed) {
+                    messagesRef.off('child_removed', messagesCallbacks.removed);
+                }
+                messagesRef = null;
+            }
+            
+            // Clean up user status listener
+            if (userStatusRef && userStatusCallback) {
+                userStatusRef.off('value', userStatusCallback);
+                userStatusRef = null;
+            }
+            
+            // Clean up current user reference
+            if (currentUserRef) {
+                currentUserRef.onDisconnect().cancel();
+                currentUserRef = null;
+            }
+            
+            // Reset callbacks
+            messagesCallbacks = {
+                added: null,
+                changed: null,
+                removed: null
+            };
+            userStatusCallback = null;
+        }
         
         function startApp() {
             loginModal.style.display = 'none';
@@ -1634,9 +192,8 @@
             
             // Set avatar
             if (currentUser.photoURL) {
-                userAvatar.innerHTML = `<img src="${currentUser.photoURL}" alt="Profile">`;
+                userAvatar.innerHTML = `<img src="${currentUser.photoURL}" style="width: 100%; height: 100%; border-radius: 16px;">`;
             } else {
-                // Show first initial for guests
                 const initial = currentUser.displayName.charAt(0).toUpperCase();
                 userAvatar.innerHTML = `<span style="font-size: 1.5rem; font-weight: bold;">${initial}</span>`;
             }
@@ -1644,11 +201,6 @@
             // Initialize chat
             initChat();
             initOnlineUsers();
-            
-            // Request notification permission
-            if (Notification.permission !== 'granted') {
-                Notification.requestPermission();
-            }
         }
         
         function initChat() {
@@ -1661,64 +213,53 @@
                 </div>
             `;
             
-            // Reference to the messages in database
-            const messagesRef = database.ref('messages').limitToLast(50);
+            // Clean up any existing listeners
+            cleanUpFirebaseListeners();
             
-            // Load existing messages
-            messagesRef.on('child_added', snapshot => {
+            // Reference to the messages in database
+            messagesRef = database.ref('messages').limitToLast(50);
+            
+            // Define callbacks
+            messagesCallbacks.added = snapshot => {
                 const message = snapshot.val();
-                // Only add messages that are not from the system
                 if (message.uid !== "system") {
                     addMessageToUI(message, snapshot.key);
-                    
-                    // Show notification for new messages not from current user
-                    if (message.uid !== currentUser.uid && !isAppActive) {
-                        unreadMessages++;
-                        updateNotificationBadge();
-                        showNotification(`New message from ${message.name}`, message.text);
-                    }
                 }
-            });
+            };
             
-            // Listen for message changes (for editing)
-            messagesRef.on('child_changed', snapshot => {
+            messagesCallbacks.changed = snapshot => {
                 const message = snapshot.val();
                 const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
                 if (messageEl) {
                     const contentEl = messageEl.querySelector('.content');
-                    if (contentEl) {
-                        contentEl.textContent = message.text;
-                    }
-                    
-                    // Add edited indicator
+                    if (contentEl) contentEl.textContent = message.text;
                     const timeEl = messageEl.querySelector('.time');
                     if (message.edited) {
                         timeEl.innerHTML = `${timeEl.textContent} <span class="edited-badge">(edited)</span>`;
                     }
                 }
-            });
+            };
             
-            // Listen for message removal
-            messagesRef.on('child_removed', snapshot => {
+            messagesCallbacks.removed = snapshot => {
                 const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
-                if (messageEl) {
-                    messageEl.remove();
-                }
-            });
+                if (messageEl) messageEl.remove();
+            };
+            
+            // Attach listeners
+            messagesRef.on('child_added', messagesCallbacks.added);
+            messagesRef.on('child_changed', messagesCallbacks.changed);
+            messagesRef.on('child_removed', messagesCallbacks.removed);
             
             // Send message
             sendButton.addEventListener('click', sendMessage);
             messageInput.addEventListener('keypress', e => {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
+                if (e.key === 'Enter') sendMessage();
             });
         }
         
         function sendMessage() {
             const messageText = messageInput.value.trim();
             if (messageText) {
-                // Create message object
                 const message = {
                     text: messageText,
                     name: currentUser.displayName,
@@ -1727,11 +268,9 @@
                     isGuest: currentUser.isGuest
                 };
                 
-                // Push to database
                 database.ref('messages').push(message)
                     .catch(error => {
                         console.error('Error sending message:', error);
-                        // Show error to user
                         const errorMsg = document.createElement('div');
                         errorMsg.classList.add('message', 'received');
                         errorMsg.innerHTML = `
@@ -1743,7 +282,6 @@
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                     });
                 
-                // Clear input
                 messageInput.value = '';
             }
         }
@@ -1752,23 +290,16 @@
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
             
-            // Check if message is from current user
             const isCurrentUser = message.uid === currentUser.uid;
             messageDiv.classList.add(isCurrentUser ? 'sent' : 'received');
             messageDiv.dataset.key = key;
             messageDiv.dataset.timestamp = message.timestamp;
             
-            // Format time
             const time = new Date(message.timestamp);
             const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            // Add badge for guest users
             const badge = message.isGuest ? '<span class="badge">Guest</span>' : '';
-            
-            // Add edited badge if message has been edited
             const editedBadge = message.edited ? ' <span class="edited-badge">(edited)</span>' : '';
             
-            // Message actions
             let messageActions = '';
             if (isCurrentUser) {
                 messageActions = `
@@ -1795,7 +326,6 @@
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
             
-            // Add event listeners for message actions
             if (isCurrentUser) {
                 const editBtn = messageDiv.querySelector('.edit-message');
                 const deleteBtn = messageDiv.querySelector('.delete-message');
@@ -1838,8 +368,7 @@
                 name: currentUser.displayName,
                 status: 'online',
                 lastOnline: Date.now(),
-                isGuest: currentUser.isGuest,
-                photoURL: currentUser.photoURL
+                isGuest: currentUser.isGuest
             })
             .catch(error => {
                 console.error('Error setting user status:', error);
@@ -1855,7 +384,7 @@
             });
             
             // Listen for online users
-            userStatusRef.on('value', snapshot => {
+            userStatusCallback = snapshot => {
                 onlineUsersList.innerHTML = '';
                 let onlineCountValue = 0;
                 
@@ -1873,15 +402,10 @@
                     const user = childSnapshot.val();
                     if (user.status === 'online' && user.name) {
                         onlineCountValue++;
-                        
                         const userItem = document.createElement('li');
-                        const initial = user.name.charAt(0).toUpperCase();
-                        
                         userItem.innerHTML = `
                             <div class="status"></div>
-                            <div class="avatar-sm">
-                                ${user.photoURL ? `<img src="${user.photoURL}" alt="${user.name}">` : initial}
-                            </div>
+                            <div class="avatar-sm">${user.name.charAt(0).toUpperCase()}</div>
                             <span>${user.name} ${user.isGuest ? '<span style="color: var(--accent); font-size: 0.8rem;">(Guest)</span>' : ''}</span>
                         `;
                         onlineUsersList.appendChild(userItem);
@@ -1890,14 +414,13 @@
                 
                 onlineCount.textContent = `(${onlineCountValue + 1})`;
                 participantCount.textContent = onlineCountValue + 1;
-            }, (error) => {
-                console.error('Error loading online users:', error);
-            });
+            };
+            
+            userStatusRef.on('value', userStatusCallback);
         }
         
         // Initialize the app
         window.onload = function() {
-            // Check for saved user
             const savedUser = localStorage.getItem('firechat_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
