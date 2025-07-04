@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireChat Pro | Complete Messaging Solution</title>
+    <title>FireChat Pro | Fixed Conversation System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -22,9 +22,6 @@
             --text-light: #f1f5f9;
             --text-gray: #94a3b8;
             --border-color: rgba(255, 255, 255, 0.08);
-            --message-bg: rgba(30, 41, 59, 0.8);
-            --message-bg-sent: rgba(67, 97, 238, 0.3);
-            --hover-bg: rgba(255, 255, 255, 0.05);
         }
         
         * {
@@ -32,7 +29,6 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
         
         body {
@@ -163,13 +159,6 @@
             color: white;
             flex-shrink: 0;
             box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
-            overflow: hidden;
-        }
-        
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
         
         .user-info h3 {
@@ -186,7 +175,7 @@
             gap: 6px;
         }
         
-        .status-indicator {
+        .user-info p .status-indicator {
             width: 10px;
             height: 10px;
             border-radius: 50%;
@@ -219,28 +208,6 @@
             background: rgba(231, 29, 54, 0.15);
             border-color: rgba(231, 29, 54, 0.3);
             color: #ff6b81;
-        }
-        
-        .profile-edit-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-        }
-        
-        .profile-edit-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
         }
         
         .search-container {
@@ -303,7 +270,7 @@
         }
         
         .conversation-list li:hover {
-            background: var(--hover-bg);
+            background: rgba(255, 255, 255, 0.08);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
@@ -321,7 +288,6 @@
             color: white;
             flex-shrink: 0;
             font-weight: 600;
-            overflow: hidden;
         }
         
         .conversation-info {
@@ -408,7 +374,7 @@
         }
         
         .user-list li:hover {
-            background: var(--hover-bg);
+            background: rgba(255, 255, 255, 0.08);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
@@ -437,7 +403,6 @@
             color: white;
             flex-shrink: 0;
             font-weight: 600;
-            overflow: hidden;
         }
         
         .chat-container {
@@ -521,14 +486,14 @@
         
         .received {
             align-self: flex-start;
-            background: var(--message-bg);
+            background: rgba(30, 41, 59, 0.8);
             border: 1px solid var(--border-color);
             border-bottom-left-radius: 5px;
         }
         
         .sent {
             align-self: flex-end;
-            background: var(--message-bg-sent);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             border-bottom-right-radius: 5px;
         }
         
@@ -739,7 +704,7 @@
             display: flex;
             align-items: center;
             padding: 8px 15px;
-            background: var(--message-bg);
+            background: rgba(30, 41, 59, 0.8);
             border-radius: 18px;
             align-self: flex-start;
             margin-bottom: 10px;
@@ -1007,117 +972,6 @@
             box-shadow: 0 4px 15px rgba(67, 97, 238, 0.2);
         }
         
-        /* Profile edit modal */
-        .profile-edit-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .profile-edit-content {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-            border: 1px solid var(--border-color);
-        }
-        
-        .profile-edit-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .profile-edit-header h3 {
-            font-size: 1.3rem;
-        }
-        
-        .profile-edit-close {
-            background: none;
-            border: none;
-            color: var(--text-gray);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .profile-edit-close:hover {
-            color: var(--accent);
-        }
-        
-        .avatar-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 20px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .avatar-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .avatar-preview span {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: white;
-        }
-        
-        .avatar-upload {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        
-        .avatar-upload-btn {
-            background: rgba(67, 97, 238, 0.1);
-            border: 1px dashed rgba(67, 97, 238, 0.3);
-            color: var(--accent);
-            padding: 8px 16px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .avatar-upload-btn:hover {
-            background: rgba(67, 97, 238, 0.2);
-        }
-        
-        .profile-edit-input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.06);
-            color: white;
-            font-size: 1rem;
-            margin-bottom: 20px;
-        }
-        
-        .profile-edit-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        
         /* Message options menu */
         .message-options-menu {
             position: absolute;
@@ -1213,6 +1067,106 @@
         }
         
         .edit-message-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* Profile edit modal */
+        .profile-edit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .profile-edit-content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        
+        .profile-edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .profile-edit-header h3 {
+            font-size: 1.3rem;
+        }
+        
+        .profile-edit-close {
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .avatar-preview span {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .avatar-upload {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .avatar-upload-btn {
+            background: rgba(67, 97, 238, 0.1);
+            border: 1px dashed rgba(67, 97, 238, 0.3);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .avatar-upload-btn:hover {
+            background: rgba(67, 97, 238, 0.2);
+        }
+        
+        .profile-edit-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        
+        .profile-edit-actions {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
@@ -1531,7 +1485,6 @@
                 <button class="avatar-upload-btn" id="avatarUploadBtn">
                     <i class="fas fa-upload"></i> Change Avatar
                 </button>
-                <input type="file" id="avatarFileInput" accept="image/*" style="display: none;">
             </div>
             <input type="text" class="profile-edit-input" id="profileNameInput" placeholder="Enter your name">
             <div class="profile-edit-actions">
@@ -1596,7 +1549,6 @@
         const avatarPreview = document.getElementById('avatarPreview');
         const avatarInitial = document.getElementById('avatarInitial');
         const avatarUploadBtn = document.getElementById('avatarUploadBtn');
-        const avatarFileInput = document.getElementById('avatarFileInput');
         const typingIndicator = document.getElementById('typingIndicator');
         
         // Current user data
@@ -1606,7 +1558,6 @@
         let currentMessageElement = null;
         let conversations = {};
         let onlineUsers = {};
-        let avatarImage = null;
 
         // Show login modal initially
         loginModal.style.display = 'flex';
@@ -1731,9 +1682,6 @@
                     name: newName
                 });
                 
-                // Update avatar initial
-                avatarInitial.textContent = newName.charAt(0).toUpperCase();
-                
                 // Update in all conversations
                 for (const conversationId in conversations) {
                     const conversation = conversations[conversationId];
@@ -1754,40 +1702,7 @@
         
         // Avatar upload
         avatarUploadBtn.addEventListener('click', () => {
-            avatarFileInput.click();
-        });
-        
-        avatarFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    avatarPreview.innerHTML = `<img src="${event.target.result}" alt="Profile">`;
-                    avatarImage = event.target.result;
-                    
-                    // Update main avatar
-                    userAvatar.innerHTML = `<img src="${event.target.result}" alt="Profile">`;
-                    
-                    // Save to local storage
-                    localStorage.setItem('firechat_avatar', event.target.result);
-                    
-                    // Update in Firebase
-                    database.ref('users/' + currentUser.uid).update({
-                        photoURL: event.target.result
-                    });
-                    
-                    // Update in conversations
-                    for (const conversationId in conversations) {
-                        const conversation = conversations[conversationId];
-                        if (conversation.participants[currentUser.uid]) {
-                            database.ref(`conversations/${conversationId}/participants/${currentUser.uid}`).update({
-                                photoURL: event.target.result
-                            });
-                        }
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
+            alert('Avatar upload functionality would be implemented here');
         });
         
         // Typing indicator
@@ -1829,13 +1744,8 @@
             userName.textContent = currentUser.displayName;
             
             // Set avatar
-            const savedAvatar = localStorage.getItem('firechat_avatar');
-            if (savedAvatar) {
-                userAvatar.innerHTML = `<img src="${savedAvatar}" alt="Profile">`;
-                avatarImage = savedAvatar;
-            } else if (currentUser.photoURL) {
-                userAvatar.innerHTML = `<img src="${currentUser.photoURL}" alt="Profile">`;
-                avatarImage = currentUser.photoURL;
+            if (currentUser.photoURL) {
+                userAvatar.innerHTML = `<img src="${currentUser.photoURL}" style="width: 100%; height: 100%; border-radius: 16px;">`;
             } else {
                 // Show first initial for guests
                 const initial = currentUser.displayName.charAt(0).toUpperCase();
@@ -1855,23 +1765,23 @@
             const userRef = database.ref('users/' + currentUser.uid);
             
             // Set user status to online
-            const userData = {
+            userRef.set({
                 name: currentUser.displayName,
                 status: 'online',
                 lastOnline: Date.now(),
-                isGuest: currentUser.isGuest,
-                photoURL: avatarImage || currentUser.photoURL
-            };
-            
-            userRef.set(userData)
-                .catch(error => {
-                    console.error('Error setting user status:', error);
-                });
+                isGuest: currentUser.isGuest
+            })
+            .catch(error => {
+                console.error('Error setting user status:', error);
+            });
             
             // Update status when user disconnects
             userRef.onDisconnect().update({
                 status: 'offline',
                 lastOnline: Date.now()
+            })
+            .catch(error => {
+                console.error('Error setting onDisconnect:', error);
             });
             
             // Listen for online users
@@ -1891,9 +1801,7 @@
                         userItem.dataset.uid = childSnapshot.key;
                         userItem.innerHTML = `
                             <div class="status"></div>
-                            <div class="avatar-xs">
-                                ${user.photoURL ? `<img src="${user.photoURL}" alt="${user.name}">` : user.name.charAt(0).toUpperCase()}
-                            </div>
+                            <div class="avatar-xs">${user.name.charAt(0).toUpperCase()}</div>
                             <span>${user.name} ${user.isGuest ? '<span style="color: var(--accent); font-size: 0.8rem;">(Guest)</span>' : ''}</span>
                         `;
                         onlineUsersList.appendChild(userItem);
@@ -1906,6 +1814,8 @@
                 });
                 
                 onlineCount.textContent = `(${onlineCountValue})`;
+            }, (error) => {
+                console.error('Error loading online users:', error);
             });
         }
         
@@ -1947,9 +1857,7 @@
                             }
                             
                             conversationItem.innerHTML = `
-                                <div class="avatar-sm">
-                                    ${otherParticipant.photoURL ? `<img src="${otherParticipant.photoURL}" alt="${otherParticipant.name}">` : otherParticipant.name.charAt(0).toUpperCase()}
-                                </div>
+                                <div class="avatar-sm">${otherParticipant.name.charAt(0).toUpperCase()}</div>
                                 <div class="conversation-info">
                                     <div class="name">${otherParticipant.name}</div>
                                     <div class="last-message">${lastMessage.text}</div>
@@ -1994,13 +1902,11 @@
                     participants: {
                         [currentUser.uid]: {
                             uid: currentUser.uid,
-                            name: currentUser.displayName,
-                            photoURL: avatarImage
+                            name: currentUser.displayName
                         },
                         [userId]: {
                             uid: userId,
-                            name: userInfo.name,
-                            photoURL: userInfo.photoURL
+                            name: userInfo.name
                         }
                     },
                     createdAt: Date.now(),
@@ -2014,11 +1920,19 @@
                     })
                     .catch(error => {
                         console.error('Error creating conversation:', error);
+                        alert('Failed to create conversation. Please try again.');
                     });
             }
         }
         
         function openConversation(conversationId, recipient) {
+            // FIX: Added validation to ensure conversation exists
+            if (!conversations[conversationId]) {
+                // If conversation doesn't exist, create a new one
+                startConversation(recipient.uid, recipient);
+                return;
+            }
+            
             currentConversation = conversationId;
             chatRecipientName.textContent = recipient.name;
             
@@ -2027,14 +1941,6 @@
             chatMessages.style.display = 'flex';
             messageInputContainer.style.display = 'flex';
             noConversation.style.display = 'none';
-            
-            // Update avatar in chat header
-            const avatarEl = chatHeader.querySelector('.avatar');
-            if (recipient.photoURL) {
-                avatarEl.innerHTML = `<img src="${recipient.photoURL}" alt="${recipient.name}" style="width:100%;height:100%;border-radius:16px;">`;
-            } else {
-                avatarEl.innerHTML = `<span style="font-size:1.5rem;font-weight:bold;">${recipient.name.charAt(0).toUpperCase()}</span>`;
-            }
             
             // Highlight active conversation
             document.querySelectorAll('.conversation-list li').forEach(item => {
@@ -2050,76 +1956,84 @@
             // Load messages for this conversation
             const messagesRef = database.ref(`conversations/${conversationId}/messages`).limitToLast(50);
             
-            // Load existing messages
-            messagesRef.on('child_added', snapshot => {
-                const message = snapshot.val();
-                addMessageToUI(message, snapshot.key);
-            });
-            
-            // Listen for message changes (for editing)
-            messagesRef.on('child_changed', snapshot => {
-                const message = snapshot.val();
-                const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
-                if (messageEl) {
-                    const contentEl = messageEl.querySelector('.content');
-                    if (contentEl) {
-                        contentEl.textContent = message.text;
-                    }
+            // FIX: Check if conversation exists before loading messages
+            messagesRef.once('value', snapshot => {
+                if (snapshot.exists()) {
+                    // Load existing messages
+                    messagesRef.on('child_added', snapshot => {
+                        const message = snapshot.val();
+                        addMessageToUI(message, snapshot.key);
+                    });
                     
-                    // Add edited indicator
-                    const timeEl = messageEl.querySelector('.time');
-                    if (message.edited && !timeEl.innerHTML.includes('(edited)')) {
-                        timeEl.innerHTML = `${timeEl.textContent} <span class="edited-badge">(edited)</span>`;
-                    }
-                    
-                    // Update reactions
-                    const reactionsContainer = messageEl.querySelector('.message-reactions');
-                    if (reactionsContainer) {
-                        reactionsContainer.innerHTML = '';
-                        if (message.reactions) {
-                            for (const emoji in message.reactions) {
-                                const users = message.reactions[emoji];
-                                const reactionEl = document.createElement('div');
-                                reactionEl.classList.add('reaction');
-                                reactionEl.innerHTML = `${emoji} ${users.length}`;
-                                
-                                // Check if current user has reacted
-                                if (users.includes(currentUser.uid)) {
-                                    reactionEl.classList.add('active');
+                    // Listen for message changes (for editing)
+                    messagesRef.on('child_changed', snapshot => {
+                        const message = snapshot.val();
+                        const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
+                        if (messageEl) {
+                            const contentEl = messageEl.querySelector('.content');
+                            if (contentEl) {
+                                contentEl.textContent = message.text;
+                            }
+                            
+                            // Add edited indicator
+                            const timeEl = messageEl.querySelector('.time');
+                            if (message.edited && !timeEl.innerHTML.includes('(edited)')) {
+                                timeEl.innerHTML = `${timeEl.textContent} <span class="edited-badge">(edited)</span>`;
+                            }
+                            
+                            // Update reactions
+                            const reactionsContainer = messageEl.querySelector('.message-reactions');
+                            if (reactionsContainer) {
+                                reactionsContainer.innerHTML = '';
+                                if (message.reactions) {
+                                    for (const emoji in message.reactions) {
+                                        const users = message.reactions[emoji];
+                                        const reactionEl = document.createElement('div');
+                                        reactionEl.classList.add('reaction');
+                                        reactionEl.innerHTML = `${emoji} ${users.length}`;
+                                        
+                                        // Check if current user has reacted
+                                        if (users.includes(currentUser.uid)) {
+                                            reactionEl.classList.add('active');
+                                        }
+                                        
+                                        reactionEl.addEventListener('click', () => {
+                                            toggleReaction(message, snapshot.key, emoji);
+                                        });
+                                        
+                                        reactionsContainer.appendChild(reactionEl);
+                                    }
                                 }
-                                
-                                reactionEl.addEventListener('click', () => {
-                                    toggleReaction(message, snapshot.key, emoji);
-                                });
-                                
-                                reactionsContainer.appendChild(reactionEl);
                             }
                         }
-                    }
+                    });
+                    
+                    // Listen for message removal
+                    messagesRef.on('child_removed', snapshot => {
+                        const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
+                        if (messageEl) {
+                            messageEl.remove();
+                        }
+                    });
+                    
+                    // Reset unread count for this conversation
+                    database.ref(`conversations/${conversationId}`).update({
+                        unreadCount: 0
+                    });
+                    
+                    // Typing indicator listener
+                    database.ref(`typing/${conversationId}`).on('value', snapshot => {
+                        typingIndicator.style.display = 'none';
+                        snapshot.forEach(childSnapshot => {
+                            if (childSnapshot.key !== currentUser.uid) {
+                                typingIndicator.style.display = 'flex';
+                            }
+                        });
+                    });
+                } else {
+                    // If conversation doesn't exist, create a new one
+                    startConversation(recipient.uid, recipient);
                 }
-            });
-            
-            // Listen for message removal
-            messagesRef.on('child_removed', snapshot => {
-                const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
-                if (messageEl) {
-                    messageEl.remove();
-                }
-            });
-            
-            // Reset unread count for this conversation
-            database.ref(`conversations/${conversationId}`).update({
-                unreadCount: 0
-            });
-            
-            // Typing indicator listener
-            database.ref(`typing/${conversationId}`).on('value', snapshot => {
-                typingIndicator.style.display = 'none';
-                snapshot.forEach(childSnapshot => {
-                    if (childSnapshot.key !== currentUser.uid) {
-                        typingIndicator.style.display = 'flex';
-                    }
-                });
             });
             
             // Scroll to bottom
