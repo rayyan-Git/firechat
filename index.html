@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireChat Pro | Enhanced Messaging</title>
+    <title>FireChat Pro | Complete Messaging Solution</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -32,6 +32,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
         
         body {
@@ -190,9 +191,6 @@
             height: 10px;
             border-radius: 50%;
             background: var(--success);
-            margin-right: 14px;
-            flex-shrink: 0;
-            box-shadow: 0 0 0 4px rgba(46, 196, 182, 0.15);
             animation: pulse 1.5s infinite;
         }
         
@@ -1009,106 +1007,6 @@
             box-shadow: 0 4px 15px rgba(67, 97, 238, 0.2);
         }
         
-        /* Message options menu */
-        .message-options-menu {
-            position: absolute;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px 0;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            display: none;
-        }
-        
-        .message-options-menu.show {
-            display: block;
-        }
-        
-        .message-option {
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-        
-        .message-option:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        .message-option i {
-            width: 16px;
-            text-align: center;
-        }
-        
-        .message-option.delete {
-            color: var(--danger);
-        }
-        
-        /* Edit message modal */
-        .edit-message-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .edit-message-content {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-            border: 1px solid var(--border-color);
-        }
-        
-        .edit-message-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .edit-message-header h3 {
-            font-size: 1.3rem;
-        }
-        
-        .edit-message-close {
-            background: none;
-            border: none;
-            color: var(--text-gray);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .edit-message-input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.06);
-            color: white;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            min-height: 120px;
-        }
-        
-        .edit-message-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        
         /* Profile edit modal */
         .profile-edit-modal {
             display: none;
@@ -1215,6 +1113,106 @@
         }
         
         .profile-edit-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* Message options menu */
+        .message-options-menu {
+            position: absolute;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+        
+        .message-options-menu.show {
+            display: block;
+        }
+        
+        .message-option {
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .message-option:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .message-option i {
+            width: 16px;
+            text-align: center;
+        }
+        
+        .message-option.delete {
+            color: var(--danger);
+        }
+        
+        /* Edit message modal */
+        .edit-message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .edit-message-content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        
+        .edit-message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .edit-message-header h3 {
+            font-size: 1.3rem;
+        }
+        
+        .edit-message-close {
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .edit-message-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            min-height: 120px;
+        }
+        
+        .edit-message-actions {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
@@ -1361,7 +1359,7 @@
                     </div>
                     <div class="user-info">
                         <h3 id="userName">Guest User</h3>
-                        <p><span class="status-indicator"></span> <span id="statusText">Online</span></p>
+                        <p><span class="status-indicator"></span> Online</p>
                         <button id="logoutBtn" class="logout-btn">
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </button>
@@ -1600,7 +1598,6 @@
         const avatarUploadBtn = document.getElementById('avatarUploadBtn');
         const avatarFileInput = document.getElementById('avatarFileInput');
         const typingIndicator = document.getElementById('typingIndicator');
-        const statusText = document.getElementById('statusText');
         
         // Current user data
         let currentUser = null;
@@ -1610,8 +1607,6 @@
         let conversations = {};
         let onlineUsers = {};
         let avatarImage = null;
-        let isTyping = false;
-        let typingTimeout = null;
 
         // Show login modal initially
         loginModal.style.display = 'flex';
@@ -1626,25 +1621,6 @@
         googleLoginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
-                .then((result) => {
-                    // This gives you a Google Access Token. You can use it to access the Google API.
-                    const credential = provider.credentialFromResult(result);
-                    const token = credential.accessToken;
-                    // The signed-in user info.
-                    const user = result.user;
-                    // Update profile with Google info
-                    currentUser = {
-                        uid: user.uid,
-                        displayName: user.displayName,
-                        photoURL: user.photoURL,
-                        email: user.email,
-                        isGuest: false
-                    };
-                    
-                    // Save to localStorage
-                    localStorage.setItem('firechat_user', JSON.stringify(currentUser));
-                    startApp();
-                })
                 .catch(error => {
                     loginError.textContent = `Login failed: ${error.message}`;
                 });
@@ -1685,7 +1661,6 @@
         logoutBtn.addEventListener('click', () => {
             auth.signOut();
             localStorage.removeItem('firechat_user');
-            localStorage.removeItem('firechat_avatar');
             loginModal.style.display = 'flex';
             appContainer.style.display = 'none';
             currentUser = null;
@@ -1751,17 +1726,23 @@
                 currentUser.displayName = newName;
                 userName.textContent = newName;
                 
-                // Update Firebase user node
+                // Update Firebase
                 database.ref('users/' + currentUser.uid).update({
-                    name: newName,
-                    photoURL: avatarImage || currentUser.photoURL
+                    name: newName
                 });
                 
                 // Update avatar initial
                 avatarInitial.textContent = newName.charAt(0).toUpperCase();
                 
                 // Update in all conversations
-                updateProfileInConversations(currentUser.uid, newName, avatarImage || currentUser.photoURL);
+                for (const conversationId in conversations) {
+                    const conversation = conversations[conversationId];
+                    if (conversation.participants[currentUser.uid]) {
+                        database.ref(`conversations/${conversationId}/participants/${currentUser.uid}`).update({
+                            name: newName
+                        });
+                    }
+                }
                 
                 // Update local storage
                 localStorage.setItem('firechat_user', JSON.stringify(currentUser));
@@ -1790,13 +1771,20 @@
                     // Save to local storage
                     localStorage.setItem('firechat_avatar', event.target.result);
                     
-                    // Update Firebase
+                    // Update in Firebase
                     database.ref('users/' + currentUser.uid).update({
                         photoURL: event.target.result
                     });
                     
                     // Update in conversations
-                    updateProfileInConversations(currentUser.uid, currentUser.displayName, event.target.result);
+                    for (const conversationId in conversations) {
+                        const conversation = conversations[conversationId];
+                        if (conversation.participants[currentUser.uid]) {
+                            database.ref(`conversations/${conversationId}/participants/${currentUser.uid}`).update({
+                                photoURL: event.target.result
+                            });
+                        }
+                    }
                 };
                 reader.readAsDataURL(file);
             }
@@ -1805,26 +1793,10 @@
         // Typing indicator
         messageInput.addEventListener('input', () => {
             if (messageInput.value.trim() !== '' && currentConversation) {
-                if (!isTyping) {
-                    isTyping = true;
-                    database.ref(`typing/${currentConversation}/${currentUser.uid}`).set({
-                        name: currentUser.displayName,
-                        timestamp: Date.now()
-                    });
-                }
-                
-                // Clear previous timeout
-                if (typingTimeout) clearTimeout(typingTimeout);
-                
-                // Set new timeout
-                typingTimeout = setTimeout(() => {
+                database.ref(`typing/${currentConversation}/${currentUser.uid}`).set(true);
+                setTimeout(() => {
                     database.ref(`typing/${currentConversation}/${currentUser.uid}`).remove();
-                    isTyping = false;
                 }, 2000);
-            } else if (isTyping) {
-                database.ref(`typing/${currentConversation}/${currentUser.uid}`).remove();
-                isTyping = false;
-                if (typingTimeout) clearTimeout(typingTimeout);
             }
         });
         
@@ -1871,56 +1843,54 @@
             }
             
             // Initialize chat
-            initUsers();
+            initOnlineUsers();
             initConversations();
             
             // Initialize search
             searchInput.addEventListener('input', filterConversations);
         }
         
-        function initUsers() {
+        function initOnlineUsers() {
             const userStatusRef = database.ref('users');
             const userRef = database.ref('users/' + currentUser.uid);
             
             // Set user status to online
-            userRef.set({
+            const userData = {
                 name: currentUser.displayName,
                 status: 'online',
                 lastOnline: Date.now(),
                 isGuest: currentUser.isGuest,
-                photoURL: currentUser.photoURL || avatarImage || null
-            })
-            .catch(error => {
-                console.error('Error setting user status:', error);
-            });
+                photoURL: avatarImage || currentUser.photoURL
+            };
+            
+            userRef.set(userData)
+                .catch(error => {
+                    console.error('Error setting user status:', error);
+                });
             
             // Update status when user disconnects
             userRef.onDisconnect().update({
                 status: 'offline',
                 lastOnline: Date.now()
-            })
-            .catch(error => {
-                console.error('Error setting onDisconnect:', error);
             });
             
-            // Listen for all users
+            // Listen for online users
             userStatusRef.on('value', snapshot => {
                 onlineUsersList.innerHTML = '';
                 onlineUsers = {};
                 let onlineCountValue = 0;
                 
+                // Add real users
                 snapshot.forEach(childSnapshot => {
                     const user = childSnapshot.val();
-                    if (childSnapshot.key !== currentUser.uid) {
-                        if (user.status === 'online') {
-                            onlineCountValue++;
-                        }
+                    if (user.status === 'online' && user.name && childSnapshot.key !== currentUser.uid) {
+                        onlineUsers[childSnapshot.key] = user;
+                        onlineCountValue++;
                         
                         const userItem = document.createElement('li');
                         userItem.dataset.uid = childSnapshot.key;
-                        // Use gray indicator for offline users
                         userItem.innerHTML = `
-                            <div class="status" style="${user.status === 'online' ? '' : 'background: var(--text-gray); box-shadow: none; animation: none;'}"></div>
+                            <div class="status"></div>
                             <div class="avatar-xs">
                                 ${user.photoURL ? `<img src="${user.photoURL}" alt="${user.name}">` : user.name.charAt(0).toUpperCase()}
                             </div>
@@ -1936,9 +1906,6 @@
                 });
                 
                 onlineCount.textContent = `(${onlineCountValue})`;
-                statusText.textContent = onlineCountValue > 0 ? 'Online' : 'Offline';
-            }, (error) => {
-                console.error('Error loading users:', error);
             });
         }
         
@@ -2028,12 +1995,12 @@
                         [currentUser.uid]: {
                             uid: currentUser.uid,
                             name: currentUser.displayName,
-                            photoURL: avatarImage || currentUser.photoURL
+                            photoURL: avatarImage
                         },
                         [userId]: {
                             uid: userId,
                             name: userInfo.name,
-                            photoURL: userInfo.photoURL || null
+                            photoURL: userInfo.photoURL
                         }
                     },
                     createdAt: Date.now(),
@@ -2061,13 +2028,13 @@
             messageInputContainer.style.display = 'flex';
             noConversation.style.display = 'none';
             
-            // Update recipient status
-            database.ref('users/' + recipient.uid).once('value').then(snapshot => {
-                const user = snapshot.val();
-                chatRecipientStatus.innerHTML = user.status === 'online' ? 
-                    '<span class="status-indicator"></span> Online' : 
-                    '<span style="background: var(--text-gray); box-shadow: none; animation: none;" class="status-indicator"></span> Offline';
-            });
+            // Update avatar in chat header
+            const avatarEl = chatHeader.querySelector('.avatar');
+            if (recipient.photoURL) {
+                avatarEl.innerHTML = `<img src="${recipient.photoURL}" alt="${recipient.name}" style="width:100%;height:100%;border-radius:16px;">`;
+            } else {
+                avatarEl.innerHTML = `<span style="font-size:1.5rem;font-weight:bold;">${recipient.name.charAt(0).toUpperCase()}</span>`;
+            }
             
             // Highlight active conversation
             document.querySelectorAll('.conversation-list li').forEach(item => {
@@ -2150,12 +2117,6 @@
                 typingIndicator.style.display = 'none';
                 snapshot.forEach(childSnapshot => {
                     if (childSnapshot.key !== currentUser.uid) {
-                        typingIndicator.innerHTML = `
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span style="margin-left: 5px;">${childSnapshot.val().name} is typing...</span>
-                        `;
                         typingIndicator.style.display = 'flex';
                     }
                 });
@@ -2208,13 +2169,6 @@
                 
                 // Clear input
                 messageInput.value = '';
-                
-                // Remove typing indicator
-                if (isTyping) {
-                    database.ref(`typing/${currentConversation}/${currentUser.uid}`).remove();
-                    isTyping = false;
-                    if (typingTimeout) clearTimeout(typingTimeout);
-                }
             }
         }
         
@@ -2454,24 +2408,6 @@
                 } else {
                     item.style.display = 'none';
                 }
-            });
-        }
-        
-        function updateProfileInConversations(userId, newName, newPhotoURL) {
-            const conversationsRef = database.ref('conversations');
-            conversationsRef.once('value').then(snapshot => {
-                snapshot.forEach(conversationSnapshot => {
-                    const conversation = conversationSnapshot.val();
-                    if (conversation.participants[userId]) {
-                        // Update the participant info in this conversation
-                        database.ref(`conversations/${conversationSnapshot.key}/participants/${userId}`).update({
-                            name: newName,
-                            photoURL: newPhotoURL
-                        });
-                    }
-                });
-            }).catch(error => {
-                console.error('Error updating conversations:', error);
             });
         }
         
