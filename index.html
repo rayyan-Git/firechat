@@ -1200,6 +1200,10 @@
             cursor: pointer;
         }
         
+        .edit-message-close:hover {
+            color: var(--accent);
+        }
+        
         .edit-message-input {
             width: 100%;
             padding: 14px;
@@ -1973,52 +1977,71 @@
         }
         
         function startConversation(userId, userInfo) {
-            // Check if conversation already exists
-            let existingConversation = null;
-            for (const conversationId in conversations) {
-                const conversation = conversations[conversationId];
-                if (conversation.participants[userId]) {
-                    existingConversation = conversationId;
-                    break;
-                }
-            }
+            // Check if conversations node exists
+            const conversationsRef = database.ref('conversations');
             
-            if (existingConversation) {
-                openConversation(existingConversation, userInfo);
-            } else {
-                // Create new conversation
-                const conversationRef = database.ref('conversations').push();
-                const conversationId = conversationRef.key;
-                
-                const conversationData = {
-                    participants: {
-                        [currentUser.uid]: {
-                            uid: currentUser.uid,
-                            name: currentUser.displayName,
-                            photoURL: avatarImage
-                        },
-                        [userId]: {
-                            uid: userId,
-                            name: userInfo.name,
-                            photoURL: userInfo.photoURL
+            conversationsRef.once('value').then(snapshot => {
+                if (!snapshot.exists()) {
+                    // Create conversations node if it doesn't exist
+                    conversationsRef.set({})
+                    .then(() => createNewConversation(userId, userInfo))
+                    .catch(error => console.error('Error creating conversations node:', error));
+                } else {
+                    // Existing logic to find/create conversation
+                    let existingConversation = null;
+                    for (const conversationId in conversations) {
+                        const conversation = conversations[conversationId];
+                        if (conversation.participants[userId]) {
+                            existingConversation = conversationId;
+                            break;
                         }
+                    }
+                    
+                    if (existingConversation) {
+                        openConversation(existingConversation, userInfo);
+                    } else {
+                        createNewConversation(userId, userInfo);
+                    }
+                }
+            });
+        }
+
+        // New helper function to create conversation
+        function createNewConversation(userId, userInfo) {
+            const conversationRef = database.ref('conversations').push();
+            const conversationId = conversationRef.key;
+            
+            const conversationData = {
+                participants: {
+                    [currentUser.uid]: {
+                        uid: currentUser.uid,
+                        name: currentUser.displayName,
+                        photoURL: avatarImage
                     },
-                    createdAt: Date.now(),
-                    lastMessage: null,
-                    unreadCount: 0
-                };
-                
-                conversationRef.set(conversationData)
-                    .then(() => {
-                        openConversation(conversationId, userInfo);
-                    })
-                    .catch(error => {
-                        console.error('Error creating conversation:', error);
-                    });
-            }
+                    [userId]: {
+                        uid: userId,
+                        name: userInfo.name,
+                        photoURL: userInfo.photoURL
+                    }
+                },
+                createdAt: Date.now(),
+                lastMessage: null,
+                unreadCount: 0
+            };
+            
+            conversationRef.set(conversationData)
+                .then(() => openConversation(conversationId, userInfo))
+                .catch(error => console.error('Error creating conversation:', error));
         }
         
         function openConversation(conversationId, recipient) {
+            // FIX: Added validation to ensure conversation exists
+            if (!conversations[conversationId]) {
+                // If conversation doesn't exist, create a new one
+                startConversation(recipient.uid, recipient);
+                return;
+            }
+            
             currentConversation = conversationId;
             chatRecipientName.textContent = recipient.name;
             
@@ -2050,76 +2073,84 @@
             // Load messages for this conversation
             const messagesRef = database.ref(`conversations/${conversationId}/messages`).limitToLast(50);
             
-            // Load existing messages
-            messagesRef.on('child_added', snapshot => {
-                const message = snapshot.val();
-                addMessageToUI(message, snapshot.key);
-            });
-            
-            // Listen for message changes (for editing)
-            messagesRef.on('child_changed', snapshot => {
-                const message = snapshot.val();
-                const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
-                if (messageEl) {
-                    const contentEl = messageEl.querySelector('.content');
-                    if (contentEl) {
-                        contentEl.textContent = message.text;
-                    }
+            // FIX: Check if conversation exists before loading messages
+            messagesRef.once('value', snapshot => {
+                if (snapshot.exists()) {
+                    // Load existing messages
+                    messagesRef.on('child_added', snapshot => {
+                        const message = snapshot.val();
+                        addMessageToUI(message, snapshot.key);
+                    });
                     
-                    // Add edited indicator
-                    const timeEl = messageEl.querySelector('.time');
-                    if (message.edited && !timeEl.innerHTML.includes('(edited)')) {
-                        timeEl.innerHTML = `${timeEl.textContent} <span class="edited-badge">(edited)</span>`;
-                    }
-                    
-                    // Update reactions
-                    const reactionsContainer = messageEl.querySelector('.message-reactions');
-                    if (reactionsContainer) {
-                        reactionsContainer.innerHTML = '';
-                        if (message.reactions) {
-                            for (const emoji in message.reactions) {
-                                const users = message.reactions[emoji];
-                                const reactionEl = document.createElement('div');
-                                reactionEl.classList.add('reaction');
-                                reactionEl.innerHTML = `${emoji} ${users.length}`;
-                                
-                                // Check if current user has reacted
-                                if (users.includes(currentUser.uid)) {
-                                    reactionEl.classList.add('active');
+                    // Listen for message changes (for editing)
+                    messagesRef.on('child_changed', snapshot => {
+                        const message = snapshot.val();
+                        const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
+                        if (messageEl) {
+                            const contentEl = messageEl.querySelector('.content');
+                            if (contentEl) {
+                                contentEl.textContent = message.text;
+                            }
+                            
+                            // Add edited indicator
+                            const timeEl = messageEl.querySelector('.time');
+                            if (message.edited && !timeEl.innerHTML.includes('(edited)')) {
+                                timeEl.innerHTML = `${timeEl.textContent} <span class="edited-badge">(edited)</span>`;
+                            }
+                            
+                            // Update reactions
+                            const reactionsContainer = messageEl.querySelector('.message-reactions');
+                            if (reactionsContainer) {
+                                reactionsContainer.innerHTML = '';
+                                if (message.reactions) {
+                                    for (const emoji in message.reactions) {
+                                        const users = message.reactions[emoji];
+                                        const reactionEl = document.createElement('div');
+                                        reactionEl.classList.add('reaction');
+                                        reactionEl.innerHTML = `${emoji} ${users.length}`;
+                                        
+                                        // Check if current user has reacted
+                                        if (users.includes(currentUser.uid)) {
+                                            reactionEl.classList.add('active');
+                                        }
+                                        
+                                        reactionEl.addEventListener('click', () => {
+                                            toggleReaction(message, snapshot.key, emoji);
+                                        });
+                                        
+                                        reactionsContainer.appendChild(reactionEl);
+                                    }
                                 }
-                                
-                                reactionEl.addEventListener('click', () => {
-                                    toggleReaction(message, snapshot.key, emoji);
-                                });
-                                
-                                reactionsContainer.appendChild(reactionEl);
                             }
                         }
-                    }
+                    });
+                    
+                    // Listen for message removal
+                    messagesRef.on('child_removed', snapshot => {
+                        const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
+                        if (messageEl) {
+                            messageEl.remove();
+                        }
+                    });
+                    
+                    // Reset unread count for this conversation
+                    database.ref(`conversations/${conversationId}`).update({
+                        unreadCount: 0
+                    });
+                    
+                    // Typing indicator listener
+                    database.ref(`typing/${conversationId}`).on('value', snapshot => {
+                        typingIndicator.style.display = 'none';
+                        snapshot.forEach(childSnapshot => {
+                            if (childSnapshot.key !== currentUser.uid) {
+                                typingIndicator.style.display = 'flex';
+                            }
+                        });
+                    });
+                } else {
+                    // If conversation doesn't exist, create a new one
+                    startConversation(recipient.uid, recipient);
                 }
-            });
-            
-            // Listen for message removal
-            messagesRef.on('child_removed', snapshot => {
-                const messageEl = document.querySelector(`[data-key="${snapshot.key}"]`);
-                if (messageEl) {
-                    messageEl.remove();
-                }
-            });
-            
-            // Reset unread count for this conversation
-            database.ref(`conversations/${conversationId}`).update({
-                unreadCount: 0
-            });
-            
-            // Typing indicator listener
-            database.ref(`typing/${conversationId}`).on('value', snapshot => {
-                typingIndicator.style.display = 'none';
-                snapshot.forEach(childSnapshot => {
-                    if (childSnapshot.key !== currentUser.uid) {
-                        typingIndicator.style.display = 'flex';
-                    }
-                });
             });
             
             // Scroll to bottom
